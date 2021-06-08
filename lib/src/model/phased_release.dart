@@ -6,7 +6,7 @@ class PhasedReleaseAttributes extends ModelAttributes {
 
   PhasedReleaseAttributes({required this.phasedReleaseState});
 
-  Map<String, dynamic?> toMap() {
+  Map<String, dynamic> toMap() {
     return {'phasedReleaseState': phasedReleaseState.toString()};
   }
 }
