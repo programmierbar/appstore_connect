@@ -2,6 +2,7 @@
 name: appstore_connect
 description: Dart client for Apple App Store Connect API
 version: 0.1.0
+homepage: https://github.com/programmierbar/appstore_connect
 
 environment:
   sdk: '>=2.12.0 <3.0.0'
