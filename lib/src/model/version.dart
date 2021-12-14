@@ -12,35 +12,26 @@ class AppStoreVersion extends CallableModel {
   static const type = 'appStoreVersions';
   static const fields = ['versionString', 'appStoreState', 'releaseType'];
 
-  final AppStorePlatform platform;
-  final String versionString;
-  final AppStoreState appStoreState;
-  final ReleaseType releaseType;
-  final DateTime? earliestReleaseDate;
-
-  final Build? build;
-  final PhasedRelease? phasedRelease;
-  final VersionSubmission? submission;
+  final AppStoreVersionAttributes _attributes;
+  final Map<String, dynamic> _relations;
 
   AppStoreVersion(
     String id,
     AppStoreConnectClient client,
     Map<String, dynamic> attributes,
-    Map<String, dynamic> relations,
-  )   : platform = AppStorePlatform._(attributes['platform']),
-        versionString = attributes['versionString'],
-        appStoreState = AppStoreState._(attributes['appStoreState']),
-        releaseType = ReleaseType._(attributes['releaseType']),
-        earliestReleaseDate = attributes['earliest_release_date'] != null //
-            ? DateTime.parse(attributes['earliest_release_date'])
-            : null,
-        build = relations['build'] as Build?,
-        phasedRelease = relations['appStoreVersionPhasedRelease'] as PhasedRelease?,
-        submission = relations['appStoreVersionSubmission'] as VersionSubmission?,
+    this._relations,
+  )   : _attributes = AppStoreVersionAttributes._(attributes),
         super(type, id, client);
 
   bool get live => AppStoreState.liveStates.contains(appStoreState);
   bool get editable => AppStoreState.editStates.contains(appStoreState);
+
+  String get versionString => _attributes.versionString;
+  AppStoreState get appStoreState => _attributes.appStoreState;
+
+  Build? get build => _relations['build'];
+  PhasedRelease? get phasedRelease => _relations['appStoreVersionPhasedRelease'];
+  VersionSubmission? get submission => _relations['appStoreVersionSubmission'];
 
   Future<List<VersionLocalization>> getLocalizations() async {
     final request = GetRequest('appStoreVersions/$id/appStoreVersionLocalizations');
@@ -48,70 +39,65 @@ class AppStoreVersion extends CallableModel {
     return response.asList<VersionLocalization>();
   }
 
-  Future<AppStoreVersion> update(AppStoreVersionAttributes attributes) {
-    return client.patchModel(
-      type: 'appStoreVersions',
-      id: id,
-      attributes: attributes,
-    );
+  Future<void> update(AppStoreVersionAttributes attributes) async {
+    await client.patchModel(type: 'appStoreVersions', id: id, attributes: attributes);
+    _attributes.merge(attributes);
   }
 
-  Future<PhasedRelease> setPhasedRelease(PhasedReleaseAttributes attributes) {
-    return client.postModel(
-      type: PhasedRelease.type,
-      attributes: attributes,
-      relationships: {
-        'appStoreVersion': ModelRelationship(type: AppStoreVersion.type, id: id),
-      },
-    );
-  }
-
-  Future<AppStoreVersion> setBuild(Build build) async {
-    return client.patchModel<AppStoreVersion>(
+  Future<void> setBuild(Build build) async {
+    await client.patchModel<AppStoreVersion>(
       type: AppStoreVersion.type,
       id: id,
-      relationships: {
-        'build': ModelRelationship(type: Build.type, id: build.id),
-      },
+      relationships: {'build': ModelRelationship(type: Build.type, id: build.id)},
+    );
+    _relations['build'] = build;
+  }
+
+  Future<PhasedRelease> setPhasedRelease(PhasedReleaseAttributes attributes) async {
+    return _relations['appStoreVersionPhasedRelease'] = await client.postModel<PhasedRelease>(
+      type: PhasedRelease.type,
+      attributes: attributes,
+      relationships: {'appStoreVersion': ModelRelationship(type: AppStoreVersion.type, id: id)},
     );
   }
 
-  Future<VersionSubmission> addSubmission() {
-    return client.postModel<VersionSubmission>(
+  Future<VersionSubmission> addSubmission() async {
+    return _relations['appStoreVersionSubmission'] = await client.postModel<VersionSubmission>(
       type: VersionSubmission.type,
-      relationships: {
-        'appStoreVersion': ModelRelationship(type: AppStoreVersion.type, id: id),
-      },
+      relationships: {'appStoreVersion': ModelRelationship(type: AppStoreVersion.type, id: id)},
     );
   }
-
-  /*Future<ReleaseRequest> addReleaseRequest() {
-    return client.postModel<ReleaseRequest>(
-      type: ReleaseRequest.type,
-      relationships: {
-        'appStoreVersion': ModelRelationship(type: AppStoreVersion.type, id: id),
-      },
-    );
-  }*/
 }
 
 class AppStoreVersionAttributes implements ModelAttributes {
-  final AppStorePlatform? platform;
-  final String? versionString;
-  final ReleaseType? releaseType;
-  final DateTime? earliestReleaseDate;
+  final Map<String, dynamic> _attributes;
 
-  AppStoreVersionAttributes({this.platform, this.versionString, this.releaseType, this.earliestReleaseDate});
+  AppStoreVersionAttributes({
+    AppStorePlatform? platform,
+    String? versionString,
+    ReleaseType? releaseType,
+    DateTime? earliestReleaseDate,
+  }) : _attributes = {
+          if (platform != null) 'platform': platform.toString(),
+          if (versionString != null) 'versionString': versionString,
+          if (releaseType != null) 'releaseType': releaseType.toString(),
+          if (earliestReleaseDate != null)
+            'earliestReleaseDate': _earliestDateFormat.format(earliestReleaseDate.toUtc()),
+        };
 
-  Map<String, dynamic> toMap() {
-    return {
-      'platform': platform?.toString(),
-      'versionString': versionString,
-      'releaseType': releaseType?.toString(),
-      'earliestReleaseDate':
-          earliestReleaseDate != null ? _earliestDateFormat.format(earliestReleaseDate!.toUtc()) : null
-    };
-  }
+  AppStoreVersionAttributes._(this._attributes);
+
+  String get versionString => _attributes['versionString'];
+  AppStorePlatform get platform => AppStorePlatform._(_attributes['platform']);
+  AppStoreState get appStoreState => AppStoreState._(_attributes['appStoreState']);
+  ReleaseType get releaseType => ReleaseType._(_attributes['releaseType']);
+  DateTime? get earliestReleaseDate => _attributes['earliest_release_date'] != null //
+      ? DateTime.parse(_attributes['earliest_release_date'])
+      : null;
+
+  void merge(AppStoreVersionAttributes attributes) => _attributes.addAll(attributes._attributes);
+
+  Map<String, dynamic> toMap() => _attributes;
 }
 
 class AppStorePlatform {
