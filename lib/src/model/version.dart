@@ -28,6 +28,7 @@ class AppStoreVersion extends CallableModel {
 
   String get versionString => _attributes.versionString;
   AppStoreState get appStoreState => _attributes.appStoreState;
+  ReleaseType get releaseType => _attributes.releaseType;
 
   Build? get build => _relations['build'];
   PhasedRelease? get phasedRelease => _relations['appStoreVersionPhasedRelease'];
