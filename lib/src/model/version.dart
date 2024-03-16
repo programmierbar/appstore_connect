@@ -35,20 +35,21 @@ class AppStoreVersion extends CallableModel {
   VersionSubmission? get submission => _relations['appStoreVersionSubmission'];
 
   Future<List<VersionLocalization>> getLocalizations() async {
-    final request = GetRequest('appStoreVersions/$id/appStoreVersionLocalizations');
+    final request = GetRequest(AppStoreConnectUri.v1(resource: 'appStoreVersions/$id/appStoreVersionLocalizations'));
     final response = await client.get(request);
     return response.asList<VersionLocalization>();
   }
 
   Future<void> update(AppStoreVersionAttributes attributes) async {
-    await client.patchModel(type: 'appStoreVersions', id: id, attributes: attributes);
+    await client.patchModel(AppStoreConnectUri.v1(), 'appStoreVersions',id, attributes: attributes);
     _attributes.merge(attributes);
   }
 
   Future<void> setBuild(Build build) async {
     await client.patchModel<AppStoreVersion>(
-      type: AppStoreVersion.type,
-      id: id,
+      AppStoreConnectUri.v1(),
+      AppStoreVersion.type,
+      id,
       relationships: {'build': ModelRelationship(type: Build.type, id: build.id)},
     );
     _relations['build'] = build;
@@ -56,7 +57,8 @@ class AppStoreVersion extends CallableModel {
 
   Future<PhasedRelease> setPhasedRelease(PhasedReleaseAttributes attributes) async {
     return _relations['appStoreVersionPhasedRelease'] = await client.postModel<PhasedRelease>(
-      type: PhasedRelease.type,
+      AppStoreConnectUri.v1(),
+      PhasedRelease.type,
       attributes: attributes,
       relationships: {'appStoreVersion': ModelRelationship(type: AppStoreVersion.type, id: id)},
     );
@@ -64,7 +66,8 @@ class AppStoreVersion extends CallableModel {
 
   Future<VersionSubmission> addSubmission() async {
     return _relations['appStoreVersionSubmission'] = await client.postModel<VersionSubmission>(
-      type: VersionSubmission.type,
+      AppStoreConnectUri.v1(),
+      VersionSubmission.type,
       relationships: {'appStoreVersion': ModelRelationship(type: AppStoreVersion.type, id: id)},
     );
   }

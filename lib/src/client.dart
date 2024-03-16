@@ -4,7 +4,15 @@ import 'package:appstore_connect/src/model/model.dart';
 import 'package:appstore_connect/src/token.dart';
 import 'package:http/http.dart';
 
-const _apiUri = 'https://api.appstoreconnect.apple.com/v1/';
+extension AppStoreConnectUri on Uri {
+  static Uri v1({String? resource = ''}) {
+    return Uri.parse('https://api.appstoreconnect.apple.com/v1/$resource');
+  }
+
+  static Uri v2({String? resource = ''}) {
+    return Uri.parse('https://api.appstoreconnect.apple.com/v2/$resource');
+  }
+}
 
 class AppStoreConnectCredentials {
   final String keyId;
@@ -33,57 +41,64 @@ class AppStoreConnectClient {
     ));
   }
 
-  Future<ApiResponse> post(String path, Map<String, dynamic> data) async {
+  Future<ApiResponse> post(Uri uri, Map<String, dynamic> body) async {
     return _handle(_client.post(
-      _getUri(path),
+      uri,
       headers: await _getHeaders(),
-      body: jsonEncode({'data': data}),
+      body: jsonEncode(body),
     ));
   }
 
-  Future<T> postModel<T extends Model>({
-    required String type,
+  Future<T> postModel<T extends Model>(
+    Uri baseUri,
+    String type, {
     ModelAttributes? attributes,
     Map<String, ModelRelationship>? relationships,
   }) async {
-    final response = await post(type, {
-      'type': type,
-      if (attributes != null) //
-        'attributes': attributes.toMap()..removeWhere((_, value) => value == null),
-      if (relationships != null) //
-        'relationships': relationships.map((key, value) => MapEntry(key, {'data': value.toMap()}))
+    final response = await post(Uri.parse(baseUri.toString() + '$type'), {
+      'data': {
+        'type': type,
+        if (attributes != null) //
+          'attributes': attributes.toMap()..removeWhere((_, value) => value == null),
+        if (relationships != null) //
+          'relationships': relationships.map((key, value) => MapEntry(key, {'data': value.toMap()}))
+      }
     });
     return response.as<T>();
   }
 
   Future<ApiResponse> patch(String path, Map<String, dynamic> data) async {
+  Future<ApiResponse> patch(Uri uri, Map<String, dynamic> data) async {
     return _handle(_client.patch(
-      _getUri(path),
+      uri,
       headers: await _getHeaders(),
-      body: jsonEncode({'data': data}),
+      body: jsonEncode(data),
     ));
   }
 
-  Future<T> patchModel<T extends Model>({
-    required String type,
-    required String id,
+  Future<T> patchModel<T extends Model>(
+    Uri baseUri,
+    String type,
+    String id, {
     ModelAttributes? attributes,
     Map<String, ModelRelationship>? relationships,
   }) async {
-    final response = await patch('$type/$id', {
-      'type': type,
-      'id': id,
-      if (attributes != null) //
-        'attributes': attributes.toMap()..removeWhere((_, value) => value == null),
-      if (relationships != null) //
-        'relationships': relationships.map((key, value) => MapEntry(key, {'data': value.toMap()}))
+    final response = await patch(Uri.parse(baseUri.toString() + '$type/$id'), {
+      'data': {
+        'type': type,
+        'id': id,
+        if (attributes != null) //
+          'attributes': attributes.toMap()..removeWhere((_, value) => value == null),
+        if (relationships != null) //
+          'relationships': relationships.map((key, value) => MapEntry(key, {'data': value.toMap()}))
+      }
     });
     return response.as<T>();
   }
 
-  Future<void> delete(String path) async {
+  Future<void> delete(Uri uri) async {
     await _handle(_client.delete(
-      _getUri(path),
+      uri,
       headers: await _getHeaders(),
     ));
   }
@@ -117,14 +132,14 @@ class AppStoreConnectClient {
 }
 
 class GetRequest {
-  final String _path;
+  final Uri _uri;
   final Map<String, dynamic> _filters = {};
   final Set<String> _includes = {};
   final Map<String, String> _fields = {};
   final Map<String, int> _limits = {};
   final Map<String, bool> _sort = {};
 
-  GetRequest(this._path);
+  GetRequest(this._uri);
 
   void filter(String field, dynamic value) {
     _filters[field] = value is Iterable ? value.map((item) => item.toString()).join(',') : value;
@@ -158,7 +173,7 @@ class GetRequest {
         'sort': _sort.entries.map((entry) => '${entry.value ? '-' : ''}${entry.key}').join(',')
     };
 
-    return Uri.parse(_apiUri + _path).replace(queryParameters: params);
+    return (_uri).replace(queryParameters: params);
   }
 }
 

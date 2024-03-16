@@ -13,7 +13,7 @@ class AppStoreConnectApi {
     Iterable<AppStoreState>? states,
     Iterable<AppStorePlatform>? platforms,
   }) async {
-    final request = GetRequest('apps/$_appId/appStoreVersions') //
+    final request = GetRequest(AppStoreConnectUri.v1(resource: 'apps/$_appId/appStoreVersions')) //
       ..include('appStoreVersionPhasedRelease')
       ..include('appStoreVersionSubmission')
       ..include('build');
@@ -36,15 +36,17 @@ class AppStoreConnectApi {
     required AppStoreVersionAttributes attributes,
   }) async {
     final response = await _client.post(
-      'appStoreVersions',
+      AppStoreConnectUri.v1(resource: 'appStoreVersions'),
       {
-        'type': 'appStoreVersions',
-        'attributes': attributes.toMap()..removeWhere((_, value) => value == null),
-        'relationships': {
-          'app': {
-            'data': {
-              'type': 'apps',
-              'id': _appId,
+        'data': {
+          'type': 'appStoreVersions',
+          'attributes': attributes.toMap()..removeWhere((_, value) => value == null),
+          'relationships': {
+            'app': {
+              'data': {
+                'type': 'apps',
+                'id': _appId,
+              }
             }
           }
         }
@@ -54,7 +56,7 @@ class AppStoreConnectApi {
   }
 
   Future<List<Build>> getBuilds({required String version, String? buildNumber}) async {
-    final request = GetRequest('builds') //
+    final request = GetRequest(AppStoreConnectUri.v1(resource: 'builds')) //
       ..filter('app', _appId)
       ..filter('preReleaseVersion.version', version)
       ..filter('processingState', ['PROCESSING', 'FAILED', 'INVALID', 'VALID'])
