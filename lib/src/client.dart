@@ -175,7 +175,6 @@ class GetRequest {
       for (final limit in _limits.entries) //
         'limit[${limit.key}]': limit.value.toString(),
       if (_sort.isNotEmpty) //
-        'sort': _sort.entries.map((entry) => '${entry.value ? '-' : ''}${entry.key}').join(',')
         'sort': _sort.entries.map((entry) => '${entry.value ? '-' : ''}${entry.key}').join(','),
       if (_limit != null) //
         'limit': _limit.toString(),
