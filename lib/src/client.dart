@@ -67,7 +67,14 @@ class AppStoreConnectClient {
     return response.as<T>();
   }
 
-  Future<ApiResponse> patch(String path, Map<String, dynamic> data) async {
+  Future<ApiResponse> putBinary(Uri uri, Object bytes, Map<String, String> header) async {
+    return _handle(_client.put(
+      uri,
+      headers: {...(await _getHeaders()), ...header},
+      body: bytes,
+    ));
+  }
+
   Future<ApiResponse> patch(Uri uri, Map<String, dynamic> data) async {
     return _handle(_client.patch(
       uri,
@@ -102,8 +109,6 @@ class AppStoreConnectClient {
       headers: await _getHeaders(),
     ));
   }
-
-  Uri _getUri(String path) => Uri.parse(_apiUri + path);
 
   Future<Map<String, String>> _getHeaders() async {
     final token = await _getToken();

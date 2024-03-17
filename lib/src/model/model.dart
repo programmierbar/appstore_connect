@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:appstore_connect/src/client.dart';
 import 'package:appstore_connect/src/model/build.dart';
+import 'package:appstore_connect/src/model/in_app_purchase.dart';
 import 'package:appstore_connect/src/model/phased_release.dart';
 import 'package:appstore_connect/src/model/version.dart';
 import 'package:appstore_connect/src/model/version_localization.dart';
@@ -32,6 +35,18 @@ abstract class Model {
       //  return ReleaseRequest(id);
       case Build.type:
         return Build(id, attributes);
+      case InAppPurchase.type:
+        return InAppPurchase(id, attributes);
+      case InAppPurchaseLocalization.type:
+        return InAppPurchaseLocalization(id, attributes);
+      case InAppPurchaseLocalization.type:
+        return InAppPurchasePriceSchedule(id);
+      case Territory.type:
+        return Territory(id, attributes);
+      case InAppPurchaseAppStoreReviewScreenshots.type:
+        return InAppPurchaseAppStoreReviewScreenshots(id, attributes);
+      case InAppPurchasePricePoint.type:
+        return InAppPurchasePricePoint(id, attributes);
       default:
         throw Exception('Type $type is not supported yet');
     }
