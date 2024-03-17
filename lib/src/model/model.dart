@@ -62,10 +62,18 @@ class ModelRelationship {
 class ModelParser {
   static List<T> parseList<T extends Model>(AppStoreConnectClient client, Map<String, dynamic> envelope) {
     final includedModels = _parseIncludes(client, envelope);
-    final modelData = envelope['data'].cast<Map<String, dynamic>>();
-    final modelList = modelData.map((data) => _parseModel(client, data, includedModels)).toList();
 
-    return modelList.cast<T>();
+    final Iterable<Model> modelList;
+    final dataValue = envelope['data'];
+    if (dataValue is Map) {
+      modelList = dataValue.values.map((value) => _parseModel(client, value, includedModels));
+    } else if (dataValue is List) {
+      modelList = dataValue.map((value) => _parseModel(client, value, includedModels));
+    } else {
+      throw Error();
+    }
+
+    return modelList.toList().cast<T>();
   }
 
   static T parse<T extends Model>(AppStoreConnectClient client, Map<String, dynamic> envelope) {
