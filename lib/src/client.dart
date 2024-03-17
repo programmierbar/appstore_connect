@@ -138,6 +138,7 @@ class GetRequest {
   final Map<String, String> _fields = {};
   final Map<String, int> _limits = {};
   final Map<String, bool> _sort = {};
+  int? _limit;
 
   GetRequest(this._uri);
 
@@ -159,6 +160,10 @@ class GetRequest {
     _sort[field] = descending;
   }
 
+  void limit(int limit) {
+    _limit = limit;
+  }
+
   Uri toUri() {
     final params = <String, dynamic>{
       for (final filter in _filters.entries) //
@@ -171,6 +176,9 @@ class GetRequest {
         'limit[${limit.key}]': limit.value.toString(),
       if (_sort.isNotEmpty) //
         'sort': _sort.entries.map((entry) => '${entry.value ? '-' : ''}${entry.key}').join(',')
+        'sort': _sort.entries.map((entry) => '${entry.value ? '-' : ''}${entry.key}').join(','),
+      if (_limit != null) //
+        'limit': _limit.toString(),
     };
 
     return (_uri).replace(queryParameters: params);
