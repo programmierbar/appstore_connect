@@ -132,7 +132,7 @@ class AppStoreConnectClient {
       return ApiResponse(this, response);
     } else {
       final request = response.request;
-      if(request != null) {
+      if (request != null) {
         print('failed [${request.method.toUpperCase()}] ${request.url}:\n${response.body}');
       }
       throw ApiException.fromResponse(response);

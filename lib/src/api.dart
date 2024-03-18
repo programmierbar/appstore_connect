@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:path/path.dart';
 
 import 'package:appstore_connect/src/client.dart';
 import 'package:appstore_connect/src/model/build.dart';
@@ -7,6 +6,7 @@ import 'package:appstore_connect/src/model/in_app_purchase.dart';
 import 'package:appstore_connect/src/model/version.dart';
 import 'package:crypto/crypto.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:path/path.dart';
 
 class AppStoreConnectApi {
   final AppStoreConnectClient _client;
@@ -84,8 +84,7 @@ class AppStoreConnectApi {
   }
 
   Future<List<InAppPurchase>> getInAppPurchases({int limit = 200}) async {
-    final request = GetRequest(AppStoreConnectUri.v1(resource: 'apps/$_appId/inAppPurchasesV2'))
-      ..limit(limit);
+    final request = GetRequest(AppStoreConnectUri.v1(resource: 'apps/$_appId/inAppPurchasesV2'))..limit(limit);
     print('uri: ${request.toUri()}');
     final response = await _client.get(request);
 
@@ -276,7 +275,7 @@ class AppStoreConnectApi {
     final binaryAsset = await asset.readAsBytes();
     try {
       _client.putBinary(target, binaryAsset, headers);
-    }catch(e) {
+    } catch (e) {
       _client.putBinary(target, binaryAsset, headers);
     }
 

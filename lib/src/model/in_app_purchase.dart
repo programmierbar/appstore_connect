@@ -11,7 +11,6 @@ class Territory extends Model {
       : id = id,
         currency = attributes['currency'],
         super(type, id);
-
 }
 
 class InAppPurchase extends Model {
@@ -157,7 +156,6 @@ class InAppPurchasePricePoint extends Model {
         proceeds = double.parse(attributes['proceeds']),
         priceTier = int.parse(attributes['priceTier']),
         super(type, id);
-
 }
 
 class UploadOperations {
