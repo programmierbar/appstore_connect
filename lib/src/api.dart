@@ -1,12 +1,15 @@
 import 'package:appstore_connect/src/client.dart';
 import 'package:appstore_connect/src/model/build.dart';
 import 'package:appstore_connect/src/model/version.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 class AppStoreConnectApi {
   final AppStoreConnectClient _client;
   final String _appId;
 
-  AppStoreConnectApi(this._client, this._appId);
+  AppStoreConnectApi(this._client, this._appId) {
+    initializeDateFormatting();
+  }
 
   Future<List<AppStoreVersion>> getVersions({
     Iterable<String>? versions,
