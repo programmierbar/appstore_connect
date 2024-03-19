@@ -4,13 +4,13 @@ import 'package:appstore_connect/src/model/model.dart';
 import 'package:appstore_connect/src/token.dart';
 import 'package:http/http.dart';
 
-extension AppStoreConnectUri on Uri {
-  static Uri v1({String? resource = ''}) {
-    return Uri.parse('https://api.appstoreconnect.apple.com/v1/$resource');
+abstract class AppStoreConnectUri {
+  static Uri v1(String? resource) {
+    return Uri.parse('https://api.appstoreconnect.apple.com/v1/${resource ?? ''}');
   }
 
   static Uri v2({String? resource = ''}) {
-    return Uri.parse('https://api.appstoreconnect.apple.com/v2/$resource');
+    return Uri.parse('https://api.appstoreconnect.apple.com/v2/${resource ?? ''}');
   }
 }
 

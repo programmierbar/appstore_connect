@@ -22,7 +22,7 @@ class AppStoreConnectApi {
     Iterable<AppStoreState>? states,
     Iterable<AppStorePlatform>? platforms,
   }) async {
-    final request = GetRequest(AppStoreConnectUri.v1(resource: 'apps/$_appId/appStoreVersions')) //
+    final request = GetRequest(AppStoreConnectUri.v1('apps/$_appId/appStoreVersions'))
       ..include('appStoreVersionPhasedRelease')
       ..include('appStoreVersionSubmission')
       ..include('build');
@@ -45,7 +45,7 @@ class AppStoreConnectApi {
     required AppStoreVersionAttributes attributes,
   }) async {
     final response = await _client.post(
-      AppStoreConnectUri.v1(resource: 'appStoreVersions'),
+      AppStoreConnectUri.v1('appStoreVersions'),
       {
         'data': {
           'type': 'appStoreVersions',
@@ -65,7 +65,7 @@ class AppStoreConnectApi {
   }
 
   Future<List<Build>> getBuilds({required String version, String? buildNumber}) async {
-    final request = GetRequest(AppStoreConnectUri.v1(resource: 'builds')) //
+    final request = GetRequest(AppStoreConnectUri.v1('builds')) //
       ..filter('app', _appId)
       ..filter('preReleaseVersion.version', version)
       ..filter('processingState', ['PROCESSING', 'FAILED', 'INVALID', 'VALID'])
@@ -85,7 +85,7 @@ class AppStoreConnectApi {
   }
 
   Future<List<InAppPurchase>> getInAppPurchases({int limit = 200}) async {
-    final request = GetRequest(AppStoreConnectUri.v1(resource: 'apps/$_appId/inAppPurchasesV2'))..limit(limit);
+    final request = GetRequest(AppStoreConnectUri.v1('apps/$_appId/inAppPurchasesV2'))..limit(limit);
     print('uri: ${request.toUri()}');
     final response = await _client.get(request);
 
@@ -138,7 +138,7 @@ class AppStoreConnectApi {
       }
     };
 
-    await _client.post(AppStoreConnectUri.v1(resource: 'inAppPurchaseLocalizations'), body);
+    await _client.post(AppStoreConnectUri.v1('inAppPurchaseLocalizations'), body);
     return true;
   }
 
@@ -199,7 +199,7 @@ class AppStoreConnectApi {
       ]
     };
 
-    await _client.post(AppStoreConnectUri.v1(resource: 'inAppPurchasePriceSchedules'), body);
+    await _client.post(AppStoreConnectUri.v1('inAppPurchasePriceSchedules'), body);
     return true;
   }
 
@@ -223,7 +223,7 @@ class AppStoreConnectApi {
         }
       },
     };
-    await _client.post(AppStoreConnectUri.v1(resource: 'inAppPurchaseAvailabilities'), body);
+    await _client.post(AppStoreConnectUri.v1('inAppPurchaseAvailabilities'), body);
     return true;
   }
 
@@ -241,7 +241,7 @@ class AppStoreConnectApi {
         },
       }
     };
-    await _client.post(AppStoreConnectUri.v1(resource: 'inAppPurchaseSubmissions'), body);
+    await _client.post(AppStoreConnectUri.v1('inAppPurchaseSubmissions'), body);
     return true;
   }
 
@@ -266,7 +266,7 @@ class AppStoreConnectApi {
 
     //make an asset reservation
     final response =
-        await _client.post(AppStoreConnectUri.v1(resource: 'inAppPurchaseAppStoreReviewScreenshots'), reservationBody);
+        await _client.post(AppStoreConnectUri.v1('inAppPurchaseAppStoreReviewScreenshots'), reservationBody);
     final reservation = response.as<InAppPurchaseAppStoreReviewScreenshots>();
 
     //upload asset
@@ -283,7 +283,7 @@ class AppStoreConnectApi {
     await Future<void>.delayed(const Duration(milliseconds: 500));
 
     //commit the upload
-    await _client.patch(AppStoreConnectUri.v1(resource: 'inAppPurchaseAppStoreReviewScreenshots/${reservation.id}'), {
+    await _client.patch(AppStoreConnectUri.v1('inAppPurchaseAppStoreReviewScreenshots/${reservation.id}'), {
       'data': {
         'type': 'inAppPurchaseAppStoreReviewScreenshots',
         'id': reservation.id,
@@ -306,7 +306,7 @@ class AppStoreConnectApi {
   }
 
   Future<List<Territory>> getTerritories() async {
-    final response = await _client.get(GetRequest(AppStoreConnectUri.v1(resource: 'territories'))..limit(200));
+    final response = await _client.get(GetRequest(AppStoreConnectUri.v1('territories'))..limit(200));
     return response.asList<Territory>();
   }
 
