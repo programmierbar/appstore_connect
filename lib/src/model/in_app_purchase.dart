@@ -121,7 +121,7 @@ class InAppPurchaseAppStoreReviewScreenshots extends Model {
   final int fileSize;
   final String fileName;
   final String assetToken;
-  final List<UploadOperations> uploadOperations;
+  final List<UploadOperation> uploadOperations;
 
   InAppPurchaseAppStoreReviewScreenshots(String id, Map<String, dynamic> attributes)
       : id = id,
@@ -129,7 +129,7 @@ class InAppPurchaseAppStoreReviewScreenshots extends Model {
         fileName = attributes['fileName'],
         assetToken = attributes['assetToken'],
         uploadOperations = (attributes['uploadOperations'] as List)
-            .map((operation) => UploadOperations(
+            .map((operation) => UploadOperation(
                   operation['method'],
                   operation['url'],
                   operation['length'] as int,
@@ -158,14 +158,14 @@ class InAppPurchasePricePoint extends Model {
         super(type, id);
 }
 
-class UploadOperations {
+class UploadOperation {
   final String method;
   final String url;
   final int length;
   final int offset;
   final List<RequestHeader> requestHeaders;
 
-  UploadOperations(this.method, this.url, this.length, this.offset, this.requestHeaders);
+  UploadOperation(this.method, this.url, this.length, this.offset, this.requestHeaders);
 }
 
 class RequestHeader {
