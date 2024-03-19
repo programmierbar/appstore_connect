@@ -2,6 +2,7 @@ import 'package:appstore_connect/src/client.dart';
 import 'package:appstore_connect/src/model/build.dart';
 import 'package:appstore_connect/src/model/in_app_purchase.dart';
 import 'package:appstore_connect/src/model/phased_release.dart';
+import 'package:appstore_connect/src/model/territory.dart';
 import 'package:appstore_connect/src/model/version.dart';
 import 'package:appstore_connect/src/model/version_localization.dart';
 import 'package:appstore_connect/src/model/version_submission.dart';

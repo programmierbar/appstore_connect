@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:appstore_connect/src/client.dart';
 import 'package:appstore_connect/src/model/build.dart';
 import 'package:appstore_connect/src/model/in_app_purchase.dart';
+import 'package:appstore_connect/src/model/territory.dart';
 import 'package:appstore_connect/src/model/version.dart';
 import 'package:crypto/crypto.dart';
 import 'package:intl/date_symbol_data_local.dart';
