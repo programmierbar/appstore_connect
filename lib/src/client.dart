@@ -5,11 +5,11 @@ import 'package:appstore_connect/src/token.dart';
 import 'package:http/http.dart';
 
 abstract class AppStoreConnectUri {
-  static Uri v1(String? resource) {
+  static Uri v1([String? resource]) {
     return Uri.parse('https://api.appstoreconnect.apple.com/v1/${resource ?? ''}');
   }
 
-  static Uri v2({String? resource = ''}) {
+  static Uri v2([String? resource]) {
     return Uri.parse('https://api.appstoreconnect.apple.com/v2/${resource ?? ''}');
   }
 }

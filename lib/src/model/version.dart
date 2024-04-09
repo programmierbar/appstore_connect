@@ -41,13 +41,13 @@ class AppStoreVersion extends CallableModel {
   }
 
   Future<void> update(AppStoreVersionAttributes attributes) async {
-    await client.patchModel(AppStoreConnectUri.v1(null), 'appStoreVersions',id, attributes: attributes);
+    await client.patchModel(AppStoreConnectUri.v1(), 'appStoreVersions',id, attributes: attributes);
     _attributes.merge(attributes);
   }
 
   Future<void> setBuild(Build build) async {
     await client.patchModel<AppStoreVersion>(
-      AppStoreConnectUri.v1(null),
+      AppStoreConnectUri.v1(),
       AppStoreVersion.type,
       id,
       relationships: {'build': SingleModelRelationship(type: Build.type, id: build.id)},
@@ -57,7 +57,7 @@ class AppStoreVersion extends CallableModel {
 
   Future<PhasedRelease> setPhasedRelease(PhasedReleaseAttributes attributes) async {
     return _relations['appStoreVersionPhasedRelease'] = await client.postModel<PhasedRelease>(
-      AppStoreConnectUri.v1(null),
+      AppStoreConnectUri.v1(),
       PhasedRelease.type,
       attributes: attributes,
       relationships: {'appStoreVersion': SingleModelRelationship(type: AppStoreVersion.type, id: id)},
@@ -66,7 +66,7 @@ class AppStoreVersion extends CallableModel {
 
   Future<VersionSubmission> addSubmission() async {
     return _relations['appStoreVersionSubmission'] = await client.postModel<VersionSubmission>(
-      AppStoreConnectUri.v1(null),
+      AppStoreConnectUri.v1(),
       VersionSubmission.type,
       relationships: {'appStoreVersion': SingleModelRelationship(type: AppStoreVersion.type, id: id)},
     );
