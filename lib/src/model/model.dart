@@ -42,8 +42,8 @@ abstract class Model {
         return InAppPurchasePriceSchedule(id);
       case Territory.type:
         return Territory(id, attributes);
-      case InAppPurchaseAppStoreReviewScreenshots.type:
-        return InAppPurchaseAppStoreReviewScreenshots(id, attributes);
+      case InAppPurchaseAppStoreReviewScreenshotCreate.type:
+        return InAppPurchaseAppStoreReviewScreenshotCreate(id, attributes);
       case InAppPurchasePricePoint.type:
         return InAppPurchasePricePoint(id, attributes);
       default:
@@ -62,14 +62,43 @@ abstract class ModelAttributes {
   Map<String, dynamic> toMap();
 }
 
-class ModelRelationship {
+abstract class ModelRelationship {
+  dynamic toJson();
+}
+
+class SingleModelRelationship extends ModelRelationship {
   final String type;
   final String id;
 
-  ModelRelationship({required this.type, required this.id});
+  SingleModelRelationship({required this.type, required this.id});
+
+  @override
+  toJson() {
+    return {'type': type, 'id': id};
+  }
+}
+
+class MultipleModelRelationship extends ModelRelationship {
+  final List<SingleModelRelationship> relationships;
+
+  MultipleModelRelationship(List<SingleModelRelationship> this.relationships);
+
+  @override
+  toJson() {
+    return this.relationships.map((e) => e.toJson()).toList();
+  }
+}
+
+class ModelInclude {
+  final String type;
+  final String id;
+  final Map<String, dynamic>? attributes;
+  final Map<String, ModelRelationship>? relationships;
+
+  ModelInclude({required this.type, required this.id, this.attributes, this.relationships});
 
   Map<String, dynamic> toMap() {
-    return {'type': type, 'id': id};
+    return {'type': type, 'id': id, 'attributes': attributes, 'relationships': relationships};
   }
 }
 

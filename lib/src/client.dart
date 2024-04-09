@@ -54,6 +54,7 @@ class AppStoreConnectClient {
     String type, {
     ModelAttributes? attributes,
     Map<String, ModelRelationship>? relationships,
+    List<ModelInclude>? includes,
   }) async {
     final response = await post(Uri.parse(baseUri.toString() + '$type'), {
       'data': {
@@ -61,8 +62,10 @@ class AppStoreConnectClient {
         if (attributes != null) //
           'attributes': attributes.toMap()..removeWhere((_, value) => value == null),
         if (relationships != null) //
-          'relationships': relationships.map((key, value) => MapEntry(key, {'data': value.toMap()}))
-      }
+          'relationships': relationships.map((key, value) => MapEntry(key, {'data': value.toJson()}))
+      },
+      if(includes != null) //
+        'included': includes.map((value) => value.toMap())
     });
     return response.as<T>();
   }
@@ -97,7 +100,7 @@ class AppStoreConnectClient {
         if (attributes != null) //
           'attributes': attributes.toMap()..removeWhere((_, value) => value == null),
         if (relationships != null) //
-          'relationships': relationships.map((key, value) => MapEntry(key, {'data': value.toMap()}))
+          'relationships': relationships.map((key, value) => MapEntry(key, {'data': value.toJson()}))
       }
     });
     return response.as<T>();

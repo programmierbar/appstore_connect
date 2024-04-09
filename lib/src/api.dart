@@ -1,13 +1,12 @@
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:appstore_connect/src/client.dart';
 import 'package:appstore_connect/src/model/build.dart';
 import 'package:appstore_connect/src/model/in_app_purchase.dart';
+import 'package:appstore_connect/src/model/model.dart';
 import 'package:appstore_connect/src/model/territory.dart';
 import 'package:appstore_connect/src/model/version.dart';
-import 'package:crypto/crypto.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:path/path.dart';
 
 class AppStoreConnectApi {
   final AppStoreConnectClient _client;
@@ -92,205 +91,102 @@ class AppStoreConnectApi {
     return response.asList<InAppPurchase>()..sort((a, b) => a.productId.compareTo(b.productId));
   }
 
-  Future<bool> postInAppPurchase(String productId, String name, String reviewNote, InAppPurchaseType type) async {
-    final body = {
-      'data': {
-        'type': 'inAppPurchases',
-        'attributes': {
-          'familySharable': false,
-          'inAppPurchaseType': type.toString(),
-          'name': name,
-          'productId': productId,
-          "reviewNote": reviewNote,
-        },
-        'relationships': {
-          'app': {
-            'data': {
-              'type': 'apps',
-              'id': _appId,
-            }
-          }
-        }
-      }
-    };
-
-    await _client.post(AppStoreConnectUri.v2(resource: 'inAppPurchases'), body);
-    return true;
-  }
-
-  Future<bool> postInAppPurchaseLocalization(String iapId, String locale, String name, String description) async {
-    final body = {
-      'data': {
-        'type': 'inAppPurchaseLocalizations',
-        'attributes': {
-          'name': name,
-          'description': description,
-          'locale': locale,
-        },
-        'relationships': {
-          'inAppPurchaseV2': {
-            'data': {
-              'type': 'inAppPurchases',
-              'id': iapId,
-            }
-          }
-        }
-      }
-    };
-
-    await _client.post(AppStoreConnectUri.v1('inAppPurchaseLocalizations'), body);
-    return true;
-  }
-
-  Future<bool> postInAppPurchasePricePoint(String iapId, String baseTerritoryId, String pricePointId) async {
-    final body = {
-      'data': {
-        'type': 'inAppPurchasePriceSchedules',
-        'relationships': {
-          'baseTerritory': {
-            'data': {
-              'type': 'territories',
-              'id': baseTerritoryId,
-            }
-          },
-          'inAppPurchase': {
-            'data': {
-              'type': 'inAppPurchases',
-              'id': iapId,
-            }
-          },
-          'manualPrices': {
-            'data': [
-              {
-                'type': 'inAppPurchasePrices',
-                'id': pricePointId,
-              }
-            ]
-          }
-        },
+  Future<bool> postInAppPurchase(InAppPurchaseAttributes attributes) async {
+    await _client.postModel(
+      AppStoreConnectUri.v2(resource: null),
+      'inAppPurchases',
+      attributes: attributes,
+      relationships: {
+        'app': SingleModelRelationship(type: 'apps', id: _appId),
       },
-      'included': [
-        {
-          'type': 'territories',
-          'id': baseTerritoryId,
-        },
-        {
-          'type': 'inAppPurchasePrices',
-          'id': pricePointId,
-          'attributes': {
-            'endDate': null,
-            'startDate': null,
-          },
-          'relationships': {
-            'inAppPurchaseV2': {
-              'data': {
-                'type': 'inAppPurchases',
-                'id': iapId,
-              }
-            },
-            'inAppPurchasePricePoint': {
-              'data': {
-                'type': 'inAppPurchasePricePoints',
-                'id': pricePointId,
-              }
-            }
-          }
-        }
-      ]
-    };
-
-    await _client.post(AppStoreConnectUri.v1('inAppPurchasePriceSchedules'), body);
+    );
     return true;
   }
 
-  Future<bool> postInAppPurchaseAvailability(String iapId, List<String> territoryIds) async {
-    final body = {
-      'data': {
-        'type': 'inAppPurchaseAvailabilities',
-        'attributes': {
-          'availableInNewTerritories': true,
-        },
-        'relationships': {
-          'availableTerritories': {
-            'data': territoryIds.map((id) => {'type': 'territories', 'id': id}).toList()
-          },
-          'inAppPurchase': {
-            'data': {
-              'type': 'inAppPurchases',
-              'id': iapId,
-            }
-          }
-        }
+  Future<bool> postInAppPurchaseLocalization(InAppPurchaseLocalizationAttributes attributes,
+      {required String iapId}) async {
+    await _client.postModel(
+      AppStoreConnectUri.v1(null),
+      'inAppPurchaseLocalizations',
+      attributes: attributes,
+      relationships: {
+        'inAppPurchaseV2': SingleModelRelationship(type: 'inAppPurchases', id: iapId),
       },
-    };
-    await _client.post(AppStoreConnectUri.v1('inAppPurchaseAvailabilities'), body);
+    );
     return true;
   }
 
-  Future<bool> postInAppPurchaseSubmission(String iapId) async {
-    final body = {
-      'data': {
-        'type': 'inAppPurchaseSubmissions',
-        'relationships': {
-          'inAppPurchaseV2': {
-            'data': {
-              'type': 'inAppPurchases',
-              'id': iapId,
-            }
-          }
-        },
-      }
-    };
-    await _client.post(AppStoreConnectUri.v1('inAppPurchaseSubmissions'), body);
+  Future<bool> postInAppPurchasePriceSchedule(
+      {required String iapId, required String baseTerritoryId, required String pricePointId}) async {
+    await _client.postModel(AppStoreConnectUri.v1(null), 'inAppPurchasePriceSchedules', relationships: {
+      'baseTerritory': SingleModelRelationship(type: 'territories', id: baseTerritoryId),
+      'inAppPurchase': SingleModelRelationship(type: 'inAppPurchases', id: iapId),
+      'manualPrices': SingleModelRelationship(type: 'inAppPurchasePrices', id: pricePointId),
+    }, includes: [
+      ModelInclude(type: 'territories', id: baseTerritoryId),
+      ModelInclude(type: 'inAppPurchasePrices', id: pricePointId, attributes: {
+        'endDate': null,
+        'startDate': null,
+      }, relationships: {
+        'inAppPurchaseV2': SingleModelRelationship(type: 'inAppPurchases', id: iapId),
+        'inAppPurchasePricePoint': SingleModelRelationship(type: 'inAppPurchasePricePoints', id: pricePointId),
+      }),
+    ]);
     return true;
   }
 
-  Future<bool> createInAppPurchaseReviewScreenshot(String iapId, File asset) async {
-    final reservationBody = {
-      'data': {
-        'type': 'inAppPurchaseAppStoreReviewScreenshots',
-        'attributes': {
-          'fileName': basename(asset.path),
-          'fileSize': asset.lengthSync(),
-        },
-        'relationships': {
-          'inAppPurchaseV2': {
-            'data': {
-              'type': 'inAppPurchases',
-              'id': iapId,
-            }
-          }
-        }
-      }
-    };
+  Future<bool> postInAppPurchaseAvailability(InAppPurchaseAvailabilityAttributes attributes, List<String> territoryIds,
+      {required String iapId}) async {
+    await _client.postModel(
+      AppStoreConnectUri.v1(null),
+      'inAppPurchaseAvailabilities',
+      attributes: attributes,
+      relationships: {
+        'inAppPurchase': SingleModelRelationship(type: 'inAppPurchases', id: iapId),
+        'availableTerritories': MultipleModelRelationship(
+          territoryIds.map((id) => SingleModelRelationship(type: 'territories', id: id)).toList(),
+        ),
+      },
+    );
+    return true;
+  }
 
-    //make an asset reservation
-    final response =
-        await _client.post(AppStoreConnectUri.v1('inAppPurchaseAppStoreReviewScreenshots'), reservationBody);
-    final reservation = response.as<InAppPurchaseAppStoreReviewScreenshots>();
+  Future<bool> postInAppPurchaseSubmission({required String iapId}) async {
+    await _client.postModel(AppStoreConnectUri.v1(null), 'inAppPurchaseSubmissions', relationships: {
+      'inAppPurchaseV2': SingleModelRelationship(type: 'inAppPurchases', id: iapId),
+    });
+    return true;
+  }
 
-    //upload asset
-    final operation = reservation.uploadOperations.first;
+  Future<InAppPurchaseAppStoreReviewScreenshotCreate> postInAppPurchaseReviewScreenshotCreate(
+      InAppPurchaseAppStoreReviewScreenshotCreateAttributes attributes,
+      {required String iapId}) async {
+    return await _client.postModel(
+      AppStoreConnectUri.v1(null),
+      'inAppPurchaseAppStoreReviewScreenshots',
+      attributes: attributes,
+      relationships: {
+        'inAppPurchaseV2': SingleModelRelationship(type: 'inAppPurchases', id: iapId),
+      },
+    );
+  }
+
+  Future<bool> uploadInAppPurchaseAppStoreReviewScreenshot(UploadOperation operation, Uint8List data) async {
     final target = Uri.parse(operation.url);
     final Map<String, String> headers = Map.fromEntries(operation.requestHeaders.map((e) => MapEntry(e.name, e.value)));
-    final binaryAsset = await asset.readAsBytes();
-    try {
-      _client.putBinary(target, binaryAsset, headers);
-    } catch (e) {
-      _client.putBinary(target, binaryAsset, headers);
-    }
+    await _client.putBinary(target, data, headers);
+    return true;
+  }
 
-    await Future<void>.delayed(const Duration(milliseconds: 500));
-
-    //commit the upload
-    await _client.patch(AppStoreConnectUri.v1('inAppPurchaseAppStoreReviewScreenshots/${reservation.id}'), {
-      'data': {
-        'type': 'inAppPurchaseAppStoreReviewScreenshots',
-        'id': reservation.id,
-        'attributes': {'uploaded': true, 'sourceFileChecksum': sha256.convert(binaryAsset).toString()}
-      }
-    });
-
+  Future<bool> postInAppPurchaseAppStoreReviewScreenshotCommit(
+      InAppPurchaseAppStoreReviewScreenshotCommitAttributes attributes,
+      {required String screenshotId}) async {
+    await _client.patchModel(
+      AppStoreConnectUri.v1(null),
+      'inAppPurchaseAppStoreReviewScreenshots',
+      screenshotId,
+      attributes: attributes,
+    );
     return true;
   }
 
@@ -310,7 +206,8 @@ class AppStoreConnectApi {
     return response.asList<Territory>();
   }
 
-  Future<List<InAppPurchasePricePoint>> getPricePoints(String iapId, Territory territory, {int limit = 8000}) async {
+  Future<List<InAppPurchasePricePoint>> getPricePoints(Territory territory,
+      {required String iapId, int limit = 8000}) async {
     final request = GetRequest(AppStoreConnectUri.v2(resource: 'inAppPurchases/$iapId/pricePoints'))
       ..filter('territory', territory.id)
       ..limit(limit);

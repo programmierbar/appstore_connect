@@ -50,7 +50,7 @@ class AppStoreVersion extends CallableModel {
       AppStoreConnectUri.v1(null),
       AppStoreVersion.type,
       id,
-      relationships: {'build': ModelRelationship(type: Build.type, id: build.id)},
+      relationships: {'build': SingleModelRelationship(type: Build.type, id: build.id)},
     );
     _relations['build'] = build;
   }
@@ -60,7 +60,7 @@ class AppStoreVersion extends CallableModel {
       AppStoreConnectUri.v1(null),
       PhasedRelease.type,
       attributes: attributes,
-      relationships: {'appStoreVersion': ModelRelationship(type: AppStoreVersion.type, id: id)},
+      relationships: {'appStoreVersion': SingleModelRelationship(type: AppStoreVersion.type, id: id)},
     );
   }
 
@@ -68,7 +68,7 @@ class AppStoreVersion extends CallableModel {
     return _relations['appStoreVersionSubmission'] = await client.postModel<VersionSubmission>(
       AppStoreConnectUri.v1(null),
       VersionSubmission.type,
-      relationships: {'appStoreVersion': ModelRelationship(type: AppStoreVersion.type, id: id)},
+      relationships: {'appStoreVersion': SingleModelRelationship(type: AppStoreVersion.type, id: id)},
     );
   }
 }

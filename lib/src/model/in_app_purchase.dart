@@ -24,6 +24,36 @@ class InAppPurchase extends Model {
         super(type, id);
 }
 
+class InAppPurchaseAttributes implements ModelAttributes {
+  final Map<String, dynamic> _attributes;
+
+  InAppPurchaseAttributes({
+    required InAppPurchaseType inAppPurchaseType,
+    required String name,
+    required String productId,
+    required String reviewNote,
+    bool? familySharable,
+  }) : _attributes = {
+          'name': name,
+          'productId': productId,
+          'inAppPurchaseType': inAppPurchaseType.toString(),
+          'reviewNote': reviewNote,
+          if (familySharable != null) 'familySharable': familySharable,
+        };
+
+  InAppPurchaseAttributes._(this._attributes);
+
+  String get name => _attributes['name'];
+  String get productId => _attributes['productId'];
+  InAppPurchaseType get inAppPurchaseType => InAppPurchaseType._(_attributes['inAppPurchaseType']);
+  String get reviewNote => _attributes['reviewNote'];
+  bool? get familySharable => _attributes['familySharable'];
+
+  void merge(InAppPurchaseAttributes attributes) => _attributes.addAll(attributes._attributes);
+
+  Map<String, dynamic> toMap() => _attributes;
+}
+
 class InAppPurchaseState {
   static const approved = InAppPurchaseState._('APPROVED');
   static const developerActionNeeded = InAppPurchaseState._('DEVELOPER_ACTION_NEEDED');
@@ -55,7 +85,7 @@ class InAppPurchaseType {
   const InAppPurchaseType._(this._value);
 
   int get hashCode => _value.hashCode;
-  bool operator ==(dynamic other) => other is InAppPurchaseState && other._value == _value;
+  bool operator ==(dynamic other) => other is InAppPurchaseType && other._value == _value;
   String toString() => _value;
 }
 
@@ -63,18 +93,38 @@ class InAppPurchaseLocalization extends Model {
   static const String type = 'inAppPurchaseLocalizations';
 
   final String id;
-  final String name;
-  final String locale;
-  final String description;
+  final InAppPurchaseLocalizationAttributes attributes;
   final InAppPurchaseLocalizationState state;
 
   InAppPurchaseLocalization(String id, Map<String, dynamic> attributes)
       : id = id,
-        name = attributes['name'],
-        locale = attributes['locale'],
-        description = attributes['description'],
+        attributes = InAppPurchaseLocalizationAttributes._(attributes),
         state = InAppPurchaseLocalizationState._(attributes['state']),
         super(type, id);
+}
+
+class InAppPurchaseLocalizationAttributes implements ModelAttributes {
+  final Map<String, dynamic> _attributes;
+
+  InAppPurchaseLocalizationAttributes({
+    required String locale,
+    required String name,
+    String? description,
+  }) : _attributes = {
+          'name': name,
+          'locale': locale,
+          if (description != null) 'description': description,
+        };
+
+  InAppPurchaseLocalizationAttributes._(this._attributes);
+
+  String get name => _attributes['name'];
+  String get locale => _attributes['locale'];
+  String? get description => _attributes['description'];
+
+  void merge(InAppPurchaseLocalizationAttributes attributes) => _attributes.addAll(attributes._attributes);
+
+  Map<String, dynamic> toMap() => _attributes;
 }
 
 class InAppPurchaseLocalizationState {
@@ -87,7 +137,7 @@ class InAppPurchaseLocalizationState {
   const InAppPurchaseLocalizationState._(this._value);
 
   int get hashCode => _value.hashCode;
-  bool operator ==(dynamic other) => other is InAppPurchaseState && other._value == _value;
+  bool operator ==(dynamic other) => other is InAppPurchaseLocalizationState && other._value == _value;
   String toString() => _value;
 }
 
@@ -101,19 +151,34 @@ class InAppPurchasePriceSchedule extends Model {
         super(type, id);
 }
 
-class InAppPurchaseAppStoreReviewScreenshots extends Model {
+class InAppPurchaseAvailabilityAttributes implements ModelAttributes {
+  final Map<String, dynamic> _attributes;
+
+  InAppPurchaseAvailabilityAttributes({bool? availableInNewTerritories})
+      : _attributes = {
+          if (availableInNewTerritories != null) 'availableInNewTerritories': availableInNewTerritories,
+        };
+
+  InAppPurchaseAvailabilityAttributes._(this._attributes);
+
+  bool? get availableInNewTerritories => _attributes['availableInNewTerritories'];
+
+  void merge(InAppPurchaseAvailabilityAttributes attributes) => _attributes.addAll(attributes._attributes);
+
+  Map<String, dynamic> toMap() => _attributes;
+}
+
+class InAppPurchaseAppStoreReviewScreenshotCreate extends Model {
   static const String type = 'inAppPurchaseAppStoreReviewScreenshots';
 
   final String id;
-  final int fileSize;
-  final String fileName;
+  final InAppPurchaseAppStoreReviewScreenshotCreateAttributes attributes;
   final String assetToken;
   final List<UploadOperation> uploadOperations;
 
-  InAppPurchaseAppStoreReviewScreenshots(String id, Map<String, dynamic> attributes)
+  InAppPurchaseAppStoreReviewScreenshotCreate(String id, Map<String, dynamic> attributes)
       : id = id,
-        fileSize = attributes['fileSize'] as int,
-        fileName = attributes['fileName'],
+        attributes = InAppPurchaseAppStoreReviewScreenshotCreateAttributes._(attributes),
         assetToken = attributes['assetToken'],
         uploadOperations = (attributes['uploadOperations'] as List)
             .map((operation) => UploadOperation(
@@ -127,6 +192,46 @@ class InAppPurchaseAppStoreReviewScreenshots extends Model {
                 ))
             .toList(),
         super(type, id);
+}
+
+class InAppPurchaseAppStoreReviewScreenshotCreateAttributes implements ModelAttributes {
+  final Map<String, dynamic> _attributes;
+
+  InAppPurchaseAppStoreReviewScreenshotCreateAttributes({required String fileName, required int fileSize})
+      : _attributes = {
+          'fileName': fileName,
+          'fileSize': fileSize,
+        };
+
+  InAppPurchaseAppStoreReviewScreenshotCreateAttributes._(this._attributes);
+
+  String get fileName => _attributes['fileName'];
+  int get fileSize => _attributes['fileSize'] as int;
+
+  void merge(InAppPurchaseAppStoreReviewScreenshotCreateAttributes attributes) =>
+      _attributes.addAll(attributes._attributes);
+
+  Map<String, dynamic> toMap() => _attributes;
+}
+
+class InAppPurchaseAppStoreReviewScreenshotCommitAttributes implements ModelAttributes {
+  final Map<String, dynamic> _attributes;
+
+  InAppPurchaseAppStoreReviewScreenshotCommitAttributes({required bool uploaded, required String sourceFileChecksum})
+      : _attributes = {
+          'uploaded': uploaded,
+          'sourceFileChecksum': sourceFileChecksum,
+        };
+
+  InAppPurchaseAppStoreReviewScreenshotCommitAttributes._(this._attributes);
+
+  bool get uploaded => _attributes['uploaded'] as bool;
+  String get sourceFileChecksum => _attributes['sourceFileChecksum'];
+
+  void merge(InAppPurchaseAppStoreReviewScreenshotCommitAttributes attributes) =>
+      _attributes.addAll(attributes._attributes);
+
+  Map<String, dynamic> toMap() => _attributes;
 }
 
 class InAppPurchasePricePoint extends Model {
