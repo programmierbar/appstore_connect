@@ -79,7 +79,7 @@ class AppStoreConnectApi {
   }
 
   Future<InAppPurchase> getInAppPurchase(String id) async {
-    final response = await _client.get(GetRequest(AppStoreConnectUri.v2(resource: 'inAppPurchases/$id')));
+    final response = await _client.get(GetRequest(AppStoreConnectUri.v2('inAppPurchases/$id')));
     return response.as<InAppPurchase>();
   }
 
@@ -93,7 +93,7 @@ class AppStoreConnectApi {
 
   Future<bool> postInAppPurchase(InAppPurchaseAttributes attributes) async {
     await _client.postModel(
-      AppStoreConnectUri.v2(resource: null),
+      AppStoreConnectUri.v2(),
       'inAppPurchases',
       attributes: attributes,
       relationships: {
@@ -192,12 +192,12 @@ class AppStoreConnectApi {
 
   Future<Object> getInAppPurchaseLocalizations(String iapId) async {
     final response = await _client
-        .get(GetRequest(AppStoreConnectUri.v2(resource: 'inAppPurchases/$iapId/inAppPurchaseLocalizations')));
+        .get(GetRequest(AppStoreConnectUri.v2('inAppPurchases/$iapId/inAppPurchaseLocalizations')));
     return response.asList<InAppPurchaseLocalization>();
   }
 
   Future<bool> deleteInAppPurchase(String id) async {
-    await _client.delete(AppStoreConnectUri.v2(resource: 'inAppPurchases/$id'));
+    await _client.delete(AppStoreConnectUri.v2('inAppPurchases/$id'));
     return true;
   }
 
@@ -208,7 +208,7 @@ class AppStoreConnectApi {
 
   Future<List<InAppPurchasePricePoint>> getPricePoints(Territory territory,
       {required String iapId, int limit = 8000}) async {
-    final request = GetRequest(AppStoreConnectUri.v2(resource: 'inAppPurchases/$iapId/pricePoints'))
+    final request = GetRequest(AppStoreConnectUri.v2('inAppPurchases/$iapId/pricePoints'))
       ..filter('territory', territory.id)
       ..limit(limit);
     final response = await _client.get(request);
