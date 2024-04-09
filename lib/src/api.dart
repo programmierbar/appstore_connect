@@ -103,8 +103,10 @@ class AppStoreConnectApi {
     return true;
   }
 
-  Future<bool> postInAppPurchaseLocalization(InAppPurchaseLocalizationAttributes attributes,
-      {required String iapId}) async {
+  Future<bool> postInAppPurchaseLocalization(
+    InAppPurchaseLocalizationAttributes attributes, {
+    required String iapId,
+  }) async {
     await _client.postModel(
       AppStoreConnectUri.v1(),
       'inAppPurchaseLocalizations',
@@ -116,8 +118,11 @@ class AppStoreConnectApi {
     return true;
   }
 
-  Future<bool> postInAppPurchasePriceSchedule(
-      {required String iapId, required String baseTerritoryId, required String pricePointId}) async {
+  Future<bool> postInAppPurchasePriceSchedule({
+    required String iapId,
+    required String baseTerritoryId,
+    required String pricePointId,
+  }) async {
     await _client.postModel(AppStoreConnectUri.v1(), 'inAppPurchasePriceSchedules', relationships: {
       'baseTerritory': SingleModelRelationship(type: 'territories', id: baseTerritoryId),
       'inAppPurchase': SingleModelRelationship(type: 'inAppPurchases', id: iapId),
@@ -135,8 +140,11 @@ class AppStoreConnectApi {
     return true;
   }
 
-  Future<bool> postInAppPurchaseAvailability(InAppPurchaseAvailabilityAttributes attributes, List<String> territoryIds,
-      {required String iapId}) async {
+  Future<bool> postInAppPurchaseAvailability(
+    InAppPurchaseAvailabilityAttributes attributes,
+    List<String> territoryIds, {
+    required String iapId,
+  }) async {
     await _client.postModel(
       AppStoreConnectUri.v1(),
       'inAppPurchaseAvailabilities',
@@ -159,8 +167,9 @@ class AppStoreConnectApi {
   }
 
   Future<InAppPurchaseAppStoreReviewScreenshotCreate> postInAppPurchaseReviewScreenshotCreate(
-      InAppPurchaseAppStoreReviewScreenshotCreateAttributes attributes,
-      {required String iapId}) async {
+    InAppPurchaseAppStoreReviewScreenshotCreateAttributes attributes, {
+    required String iapId,
+  }) async {
     return await _client.postModel(
       AppStoreConnectUri.v1(),
       'inAppPurchaseAppStoreReviewScreenshots',
@@ -179,8 +188,9 @@ class AppStoreConnectApi {
   }
 
   Future<bool> postInAppPurchaseAppStoreReviewScreenshotCommit(
-      InAppPurchaseAppStoreReviewScreenshotCommitAttributes attributes,
-      {required String screenshotId}) async {
+    InAppPurchaseAppStoreReviewScreenshotCommitAttributes attributes, {
+    required String screenshotId,
+  }) async {
     await _client.patchModel(
       AppStoreConnectUri.v1(),
       'inAppPurchaseAppStoreReviewScreenshots',
@@ -191,8 +201,8 @@ class AppStoreConnectApi {
   }
 
   Future<Object> getInAppPurchaseLocalizations(String iapId) async {
-    final response = await _client
-        .get(GetRequest(AppStoreConnectUri.v2('inAppPurchases/$iapId/inAppPurchaseLocalizations')));
+    final response =
+        await _client.get(GetRequest(AppStoreConnectUri.v2('inAppPurchases/$iapId/inAppPurchaseLocalizations')));
     return response.asList<InAppPurchaseLocalization>();
   }
 
