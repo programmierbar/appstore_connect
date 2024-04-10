@@ -139,6 +139,7 @@ class ModelParser {
   static Map<String, Map<String, Model>> _parseIncludes(AppStoreConnectClient client, Map<String, dynamic> envelope) {
     final includedModels = <String, Map<String, Model>>{};
     if (envelope.containsKey('included')) {
+      //TODO: included property is not always of type Map, see https://developer.apple.com/documentation/appstoreconnectapi/inapppurchasesubmissionresponse
       final includedData = envelope['included'].cast<Map<String, dynamic>>();
       for (final data in includedData) {
         final model = _parseModel(client, data, includedModels);
