@@ -46,6 +46,10 @@ abstract class Model {
         return InAppPurchaseAppStoreReviewScreenshotCreate(id, attributes);
       case InAppPurchasePricePoint.type:
         return InAppPurchasePricePoint(id, attributes);
+      case InAppPurchaseAvailability.type:
+        return InAppPurchaseAvailability(id, attributes);
+      case InAppPurchaseSubmission.type:
+        return InAppPurchaseSubmission(id);
       default:
         throw Exception('Type $type is not supported yet');
     }

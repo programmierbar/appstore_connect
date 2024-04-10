@@ -151,6 +151,18 @@ class InAppPurchasePriceSchedule extends Model {
         super(type, id);
 }
 
+class InAppPurchaseAvailability extends Model {
+  static const String type = 'inAppPurchaseAvailabilities';
+
+  final String id;
+  final InAppPurchaseAvailabilityAttributes attributes;
+
+  InAppPurchaseAvailability(String id, Map<String, dynamic> attributes)
+      : id = id,
+        attributes = InAppPurchaseAvailabilityAttributes._(attributes),
+        super(type, id);
+}
+
 class InAppPurchaseAvailabilityAttributes implements ModelAttributes {
   final Map<String, dynamic> _attributes;
 
@@ -247,6 +259,16 @@ class InAppPurchasePricePoint extends Model {
         customerPrice = double.parse(attributes['customerPrice']),
         proceeds = double.parse(attributes['proceeds']),
         priceTier = int.parse(attributes['priceTier']),
+        super(type, id);
+}
+
+class InAppPurchaseSubmission extends Model {
+  static const String type = 'inAppPurchaseSubmissions';
+
+  final String id;
+
+  InAppPurchaseSubmission(String id)
+      : id = id,
         super(type, id);
 }
 
