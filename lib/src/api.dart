@@ -85,7 +85,6 @@ class AppStoreConnectApi {
 
   Future<List<InAppPurchase>> getInAppPurchases({int limit = 200}) async {
     final request = GetRequest(AppStoreConnectUri.v1('apps/$_appId/inAppPurchasesV2'))..limit(limit);
-    print('uri: ${request.toUri()}');
     final response = await _client.get(request);
 
     return response.asList<InAppPurchase>()..sort((a, b) => a.productId.compareTo(b.productId));
