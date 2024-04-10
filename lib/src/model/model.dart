@@ -38,7 +38,7 @@ abstract class Model {
         return InAppPurchase(id, attributes);
       case InAppPurchaseLocalization.type:
         return InAppPurchaseLocalization(id, attributes);
-      case InAppPurchaseLocalization.type:
+      case InAppPurchasePriceSchedule.type:
         return InAppPurchasePriceSchedule(id);
       case Territory.type:
         return Territory(id, attributes);
