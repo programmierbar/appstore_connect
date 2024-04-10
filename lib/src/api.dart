@@ -125,7 +125,7 @@ class AppStoreConnectApi {
     await _client.postModel(AppStoreConnectUri.v1(), 'inAppPurchasePriceSchedules', relationships: {
       'baseTerritory': SingleModelRelationship(type: 'territories', id: baseTerritoryId),
       'inAppPurchase': SingleModelRelationship(type: 'inAppPurchases', id: iapId),
-      'manualPrices': MultipleModelRelationship([SingleModelRelationship(type: 'inAppPurchasePrices', id: pricePointId)])
+      'manualPrices': MultiModelRelationship([SingleModelRelationship(type: 'inAppPurchasePrices', id: pricePointId)])
     }, includes: [
       ModelInclude(type: 'territories', id: baseTerritoryId),
       ModelInclude(type: 'inAppPurchasePrices', id: pricePointId, attributes: {
@@ -150,7 +150,7 @@ class AppStoreConnectApi {
       attributes: attributes,
       relationships: {
         'inAppPurchase': SingleModelRelationship(type: 'inAppPurchases', id: iapId),
-        'availableTerritories': MultipleModelRelationship(
+        'availableTerritories': MultiModelRelationship(
           territoryIds.map((id) => SingleModelRelationship(type: 'territories', id: id)).toList(),
         ),
       },

@@ -82,10 +82,10 @@ class SingleModelRelationship extends ModelRelationship {
   }
 }
 
-class MultipleModelRelationship extends ModelRelationship {
+class MultiModelRelationship extends ModelRelationship {
   final List<SingleModelRelationship> relationships;
 
-  MultipleModelRelationship(List<SingleModelRelationship> this.relationships);
+  MultiModelRelationship(List<SingleModelRelationship> this.relationships);
 
   @override
   toJson() {
