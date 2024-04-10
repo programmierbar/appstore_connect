@@ -90,8 +90,8 @@ class AppStoreConnectApi {
     return response.asList<InAppPurchase>()..sort((a, b) => a.productId.compareTo(b.productId));
   }
 
-  Future<bool> postInAppPurchase(InAppPurchaseAttributes attributes) async {
-    await _client.postModel(
+  Future<InAppPurchase> postInAppPurchase(InAppPurchaseAttributes attributes) async {
+    return _client.postModel(
       AppStoreConnectUri.v2(),
       'inAppPurchases',
       attributes: attributes,
@@ -99,7 +99,6 @@ class AppStoreConnectApi {
         'app': SingleModelRelationship(type: 'apps', id: _appId),
       },
     );
-    return true;
   }
 
   Future<bool> postInAppPurchaseLocalization(
