@@ -56,7 +56,7 @@ class AppStoreConnectClient {
     Map<String, ModelRelationship>? relationships,
     List<ModelInclude>? includes,
   }) async {
-    final response = await post(Uri.parse(baseUri.toString() + '$type'), {
+    final data = {
       'data': {
         'type': type,
         if (attributes != null) //
@@ -65,8 +65,10 @@ class AppStoreConnectClient {
           'relationships': relationships.map((key, value) => MapEntry(key, {'data': value.toJson()}))
       },
       if(includes != null) //
-        'included': includes.map((value) => value.toMap())
-    });
+        'included': includes.map((value) => value.toMap()).toList()
+    };
+    final response = await post(Uri.parse(baseUri.toString() + '$type'), data);
+
     return response.as<T>();
   }
 

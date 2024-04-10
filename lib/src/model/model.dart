@@ -98,7 +98,14 @@ class ModelInclude {
   ModelInclude({required this.type, required this.id, this.attributes, this.relationships});
 
   Map<String, dynamic> toMap() {
-    return {'type': type, 'id': id, 'attributes': attributes, 'relationships': relationships};
+    return {
+      'type': type,
+      'id': id,
+      if (attributes != null) //
+        'attributes': attributes,
+      if (relationships != null) //
+        'relationships': relationships!.map((key, value) => MapEntry(key, {'data': value.toJson()}))
+    };
   }
 }
 
