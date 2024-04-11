@@ -363,13 +363,11 @@ class InAppPurchasePricePoint extends Model {
   final String id;
   final double customerPrice;
   final double proceeds;
-  final int priceTier;
 
   InAppPurchasePricePoint(String id, Map<String, dynamic> attributes)
       : id = id,
         customerPrice = double.parse(attributes['customerPrice']),
         proceeds = double.parse(attributes['proceeds']),
-        priceTier = int.parse(attributes['priceTier']),
         super(type, id);
 }
 
