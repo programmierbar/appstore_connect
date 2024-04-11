@@ -1,6 +1,9 @@
+import 'dart:typed_data';
+
+import 'package:appstore_connect/appstore_connect.dart';
 import 'package:appstore_connect/src/model/model.dart';
 
-class InAppPurchase extends Model {
+class InAppPurchase extends CallableModel {
   static const type = 'inAppPurchases';
 
   final String id;
@@ -12,7 +15,7 @@ class InAppPurchase extends Model {
   final InAppPurchaseType inAppPurchaseType;
   final InAppPurchaseState state;
 
-  InAppPurchase(String id, Map<String, dynamic> attributes)
+  InAppPurchase(String id, Map<String, dynamic> attributes, AppStoreConnectClient client)
       : id = id,
         name = attributes['name'],
         productId = attributes['productId'],
@@ -21,7 +24,98 @@ class InAppPurchase extends Model {
         contentHosting = attributes['contentHosting'],
         inAppPurchaseType = InAppPurchaseType._(attributes['inAppPurchaseType']),
         state = InAppPurchaseState._(attributes['state']),
-        super(type, id);
+        super(type, id, client);
+
+  Future<List<InAppPurchasePricePoint>> getPricePoints({
+    required String territoryId,
+    int limit = 8000,
+  }) async {
+    final request = GetRequest(AppStoreConnectUri.v2('inAppPurchases/$id/pricePoints'))
+      ..filter('territory', territoryId)
+      ..limit(limit);
+    final response = await client.get(request);
+    return response.asList<InAppPurchasePricePoint>();
+  }
+
+  Future<List<InAppPurchaseLocalization>> getLocalizations() async {
+    final response = await client.get(
+      GetRequest(
+        AppStoreConnectUri.v2('inAppPurchases/$id/inAppPurchaseLocalizations'),
+      ),
+    );
+    return response.asList<InAppPurchaseLocalization>();
+  }
+
+  Future<InAppPurchaseLocalization> addLocalization(InAppPurchaseLocalizationAttributes attributes) async {
+    return client.postModel(
+      AppStoreConnectUri.v1(),
+      'inAppPurchaseLocalizations',
+      attributes: attributes,
+      relationships: {
+        'inAppPurchaseV2': SingleModelRelationship(type: 'inAppPurchases', id: id),
+      },
+    );
+  }
+
+  Future<InAppPurchasePriceSchedule> setPriceSchedule({
+    required String baseTerritoryId,
+    required String pricePointId,
+  }) async {
+    return client.postModel(AppStoreConnectUri.v1(), 'inAppPurchasePriceSchedules', relationships: {
+      'baseTerritory': SingleModelRelationship(type: 'territories', id: baseTerritoryId),
+      'inAppPurchase': SingleModelRelationship(type: 'inAppPurchases', id: id),
+      'manualPrices': MultiModelRelationship([SingleModelRelationship(type: 'inAppPurchasePrices', id: pricePointId)])
+    }, includes: [
+      ModelInclude(type: 'territories', id: baseTerritoryId),
+      ModelInclude(type: 'inAppPurchasePrices', id: pricePointId, attributes: {
+        'endDate': null,
+        'startDate': null,
+      }, relationships: {
+        'inAppPurchaseV2': SingleModelRelationship(type: 'inAppPurchases', id: id),
+        'inAppPurchasePricePoint': SingleModelRelationship(type: 'inAppPurchasePricePoints', id: pricePointId),
+      }),
+    ]);
+  }
+
+  Future<InAppPurchaseAvailability> setAvailability(
+    InAppPurchaseAvailabilityAttributes attributes, {
+    required List<String> territoryIds,
+  }) async {
+    return client.postModel(
+      AppStoreConnectUri.v1(),
+      'inAppPurchaseAvailabilities',
+      attributes: attributes,
+      relationships: {
+        'inAppPurchase': SingleModelRelationship(type: 'inAppPurchases', id: id),
+        'availableTerritories': MultiModelRelationship(
+          territoryIds.map((id) => SingleModelRelationship(type: 'territories', id: id)).toList(),
+        ),
+      },
+    );
+  }
+
+  Future<InAppPurchaseAppStoreReviewScreenshot> createReviewScreenshot(
+      InAppPurchaseAppStoreReviewScreenshotCreateAttributes attributes) async {
+    return await client.postModel(
+      AppStoreConnectUri.v1(),
+      'inAppPurchaseAppStoreReviewScreenshots',
+      attributes: attributes,
+      relationships: {
+        'inAppPurchaseV2': SingleModelRelationship(type: 'inAppPurchases', id: id),
+      },
+    );
+  }
+
+  Future<InAppPurchaseSubmission> submit() async {
+    return client.postModel(AppStoreConnectUri.v1(), 'inAppPurchaseSubmissions', relationships: {
+      'inAppPurchaseV2': SingleModelRelationship(type: 'inAppPurchases', id: id),
+    });
+  }
+
+  Future<bool> delete() async {
+    await client.delete(AppStoreConnectUri.v2('inAppPurchases/$id'));
+    return true;
+  }
 }
 
 class InAppPurchaseAttributes implements ModelAttributes {
@@ -180,7 +274,7 @@ class InAppPurchaseAvailabilityAttributes implements ModelAttributes {
   Map<String, dynamic> toMap() => _attributes;
 }
 
-class InAppPurchaseAppStoreReviewScreenshotCreate extends Model {
+class InAppPurchaseAppStoreReviewScreenshot extends CallableModel {
   static const String type = 'inAppPurchaseAppStoreReviewScreenshots';
 
   final String id;
@@ -188,7 +282,7 @@ class InAppPurchaseAppStoreReviewScreenshotCreate extends Model {
   final String assetToken;
   final List<UploadOperation> uploadOperations;
 
-  InAppPurchaseAppStoreReviewScreenshotCreate(String id, Map<String, dynamic> attributes)
+  InAppPurchaseAppStoreReviewScreenshot(String id, Map<String, dynamic> attributes, AppStoreConnectClient client)
       : id = id,
         attributes = InAppPurchaseAppStoreReviewScreenshotCreateAttributes._(attributes),
         assetToken = attributes['assetToken'],
@@ -203,7 +297,24 @@ class InAppPurchaseAppStoreReviewScreenshotCreate extends Model {
                       .toList(),
                 ))
             .toList(),
-        super(type, id);
+        super(type, id, client);
+
+  Future<void> uploadAsset(Uint8List data) async {
+    final operation = uploadOperations.first;
+    final target = Uri.parse(operation.url);
+    final Map<String, String> headers = Map.fromEntries(operation.requestHeaders.map((e) => MapEntry(e.name, e.value)));
+    await client.putBinary(target, data, headers);
+  }
+
+  Future<InAppPurchaseAppStoreReviewScreenshot> commit(
+      InAppPurchaseAppStoreReviewScreenshotCommitAttributes attributes) async {
+    return client.patchModel(
+      AppStoreConnectUri.v1(),
+      'inAppPurchaseAppStoreReviewScreenshots',
+      id,
+      attributes: attributes,
+    );
+  }
 }
 
 class InAppPurchaseAppStoreReviewScreenshotCreateAttributes implements ModelAttributes {

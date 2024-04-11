@@ -35,15 +35,15 @@ abstract class Model {
       case Build.type:
         return Build(id, attributes);
       case InAppPurchase.type:
-        return InAppPurchase(id, attributes);
+        return InAppPurchase(id, attributes, client);
       case InAppPurchaseLocalization.type:
         return InAppPurchaseLocalization(id, attributes);
       case InAppPurchasePriceSchedule.type:
         return InAppPurchasePriceSchedule(id);
       case Territory.type:
         return Territory(id, attributes);
-      case InAppPurchaseAppStoreReviewScreenshotCreate.type:
-        return InAppPurchaseAppStoreReviewScreenshotCreate(id, attributes);
+      case InAppPurchaseAppStoreReviewScreenshot.type:
+        return InAppPurchaseAppStoreReviewScreenshot(id, attributes, client);
       case InAppPurchasePricePoint.type:
         return InAppPurchasePricePoint(id, attributes);
       case InAppPurchaseAvailability.type:
