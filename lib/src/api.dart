@@ -1,5 +1,8 @@
 import 'package:appstore_connect/src/client.dart';
 import 'package:appstore_connect/src/model/build.dart';
+import 'package:appstore_connect/src/model/in_app_purchase.dart';
+import 'package:appstore_connect/src/model/model.dart';
+import 'package:appstore_connect/src/model/territory.dart';
 import 'package:appstore_connect/src/model/version.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -16,7 +19,7 @@ class AppStoreConnectApi {
     Iterable<AppStoreState>? states,
     Iterable<AppStorePlatform>? platforms,
   }) async {
-    final request = GetRequest('apps/$_appId/appStoreVersions') //
+    final request = GetRequest(AppStoreConnectUri.v1('apps/$_appId/appStoreVersions'))
       ..include('appStoreVersionPhasedRelease')
       ..include('appStoreVersionSubmission')
       ..include('build');
@@ -39,15 +42,17 @@ class AppStoreConnectApi {
     required AppStoreVersionAttributes attributes,
   }) async {
     final response = await _client.post(
-      'appStoreVersions',
+      AppStoreConnectUri.v1('appStoreVersions'),
       {
-        'type': 'appStoreVersions',
-        'attributes': attributes.toMap()..removeWhere((_, value) => value == null),
-        'relationships': {
-          'app': {
-            'data': {
-              'type': 'apps',
-              'id': _appId,
+        'data': {
+          'type': 'appStoreVersions',
+          'attributes': attributes.toMap()..removeWhere((_, value) => value == null),
+          'relationships': {
+            'app': {
+              'data': {
+                'type': 'apps',
+                'id': _appId,
+              }
             }
           }
         }
@@ -57,7 +62,7 @@ class AppStoreConnectApi {
   }
 
   Future<List<Build>> getBuilds({required String version, String? buildNumber}) async {
-    final request = GetRequest('builds') //
+    final request = GetRequest(AppStoreConnectUri.v1('builds')) //
       ..filter('app', _appId)
       ..filter('preReleaseVersion.version', version)
       ..filter('processingState', ['PROCESSING', 'FAILED', 'INVALID', 'VALID'])
@@ -69,5 +74,33 @@ class AppStoreConnectApi {
 
     final response = await _client.get(request);
     return response.asList<Build>();
+  }
+
+  Future<InAppPurchase> getInAppPurchase(String id) async {
+    final response = await _client.get(GetRequest(AppStoreConnectUri.v2('inAppPurchases/$id')));
+    return response.as<InAppPurchase>();
+  }
+
+  Future<List<InAppPurchase>> getInAppPurchases({int limit = 200}) async {
+    final request = GetRequest(AppStoreConnectUri.v1('apps/$_appId/inAppPurchasesV2'))..limit(limit);
+    final response = await _client.get(request);
+
+    return response.asList<InAppPurchase>()..sort((a, b) => a.productId.compareTo(b.productId));
+  }
+
+  Future<InAppPurchase> postInAppPurchase(InAppPurchaseAttributes attributes) async {
+    return _client.postModel(
+      AppStoreConnectUri.v2(),
+      'inAppPurchases',
+      attributes: attributes,
+      relationships: {
+        'app': SingleModelRelationship(type: 'apps', id: _appId),
+      },
+    );
+  }
+
+  Future<List<Territory>> getTerritories() async {
+    final response = await _client.get(GetRequest(AppStoreConnectUri.v1('territories'))..limit(200));
+    return response.asList<Territory>();
   }
 }

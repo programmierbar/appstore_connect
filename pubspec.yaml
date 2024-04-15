@@ -9,5 +9,5 @@ environment:
 
 dependencies:
   dart_jsonwebtoken: ^2.11.0
-  intl: ^0.18.1
+  intl: ^0.19.0
   http: ^1.1.0

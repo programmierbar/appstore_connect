@@ -14,7 +14,7 @@ class VersionLocalization extends CallableModel {
         super(type, id, client);
 
   Future<VersionLocalization> update(VersionLocalizationAttributes attributes) async {
-    return client.patchModel(type: 'appStoreVersionLocalizations', id: id, attributes: attributes);
+    return client.patchModel(AppStoreConnectUri.v1(), 'appStoreVersionLocalizations', id, attributes: attributes);
   }
 }
 

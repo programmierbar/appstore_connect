@@ -4,7 +4,15 @@ import 'package:appstore_connect/src/model/model.dart';
 import 'package:appstore_connect/src/token.dart';
 import 'package:http/http.dart';
 
-const _apiUri = 'https://api.appstoreconnect.apple.com/v1/';
+abstract class AppStoreConnectUri {
+  static Uri v1([String? resource]) {
+    return Uri.parse('https://api.appstoreconnect.apple.com/v1/${resource ?? ''}');
+  }
+
+  static Uri v2([String? resource]) {
+    return Uri.parse('https://api.appstoreconnect.apple.com/v2/${resource ?? ''}');
+  }
+}
 
 class AppStoreConnectCredentials {
   final String keyId;
@@ -33,62 +41,79 @@ class AppStoreConnectClient {
     ));
   }
 
-  Future<ApiResponse> post(String path, Map<String, dynamic> data) async {
+  Future<ApiResponse> post(Uri uri, Map<String, dynamic> body) async {
     return _handle(_client.post(
-      _getUri(path),
+      uri,
       headers: await _getHeaders(),
-      body: jsonEncode({'data': data}),
+      body: jsonEncode(body),
     ));
   }
 
-  Future<T> postModel<T extends Model>({
-    required String type,
+  Future<T> postModel<T extends Model>(
+    Uri baseUri,
+    String type, {
     ModelAttributes? attributes,
     Map<String, ModelRelationship>? relationships,
+    List<ModelInclude>? includes,
   }) async {
-    final response = await post(type, {
-      'type': type,
-      if (attributes != null) //
-        'attributes': attributes.toMap()..removeWhere((_, value) => value == null),
-      if (relationships != null) //
-        'relationships': relationships.map((key, value) => MapEntry(key, {'data': value.toMap()}))
-    });
+    final data = {
+      'data': {
+        'type': type,
+        if (attributes != null) //
+          'attributes': attributes.toMap()..removeWhere((_, value) => value == null),
+        if (relationships != null) //
+          'relationships': relationships.map((key, value) => MapEntry(key, {'data': value.toJson()}))
+      },
+      if(includes != null) //
+        'included': includes.map((value) => value.toMap()).toList()
+    };
+    final response = await post(Uri.parse(baseUri.toString() + '$type'), data);
+
     return response.as<T>();
   }
 
-  Future<ApiResponse> patch(String path, Map<String, dynamic> data) async {
+  Future<ApiResponse> putBinary(Uri uri, Object bytes, Map<String, String> header) async {
+    return _handle(_client.put(
+      uri,
+      headers: {...(await _getHeaders()), ...header},
+      body: bytes,
+    ));
+  }
+
+  Future<ApiResponse> patch(Uri uri, Map<String, dynamic> data) async {
     return _handle(_client.patch(
-      _getUri(path),
+      uri,
       headers: await _getHeaders(),
-      body: jsonEncode({'data': data}),
+      body: jsonEncode(data),
     ));
   }
 
-  Future<T> patchModel<T extends Model>({
-    required String type,
-    required String id,
+  Future<T> patchModel<T extends Model>(
+    Uri baseUri,
+    String type,
+    String id, {
     ModelAttributes? attributes,
     Map<String, ModelRelationship>? relationships,
   }) async {
-    final response = await patch('$type/$id', {
-      'type': type,
-      'id': id,
-      if (attributes != null) //
-        'attributes': attributes.toMap()..removeWhere((_, value) => value == null),
-      if (relationships != null) //
-        'relationships': relationships.map((key, value) => MapEntry(key, {'data': value.toMap()}))
+    final response = await patch(Uri.parse(baseUri.toString() + '$type/$id'), {
+      'data': {
+        'type': type,
+        'id': id,
+        if (attributes != null) //
+          'attributes': attributes.toMap()..removeWhere((_, value) => value == null),
+        if (relationships != null) //
+          'relationships': relationships.map((key, value) => MapEntry(key, {'data': value.toJson()}))
+      }
     });
     return response.as<T>();
   }
 
-  Future<void> delete(String path) async {
+  Future<void> delete(Uri uri) async {
     await _handle(_client.delete(
-      _getUri(path),
+      uri,
       headers: await _getHeaders(),
     ));
   }
-
-  Uri _getUri(String path) => Uri.parse(_apiUri + path);
 
   Future<Map<String, String>> _getHeaders() async {
     final token = await _getToken();
@@ -111,20 +136,25 @@ class AppStoreConnectClient {
     if (response.statusCode >= 200 && response.statusCode <= 299) {
       return ApiResponse(this, response);
     } else {
+      final request = response.request;
+      if (request != null) {
+        print('failed [${request.method.toUpperCase()}] ${request.url}:\n${response.body}');
+      }
       throw ApiException.fromResponse(response);
     }
   }
 }
 
 class GetRequest {
-  final String _path;
+  final Uri _uri;
   final Map<String, dynamic> _filters = {};
   final Set<String> _includes = {};
   final Map<String, String> _fields = {};
   final Map<String, int> _limits = {};
   final Map<String, bool> _sort = {};
+  int? _limit;
 
-  GetRequest(this._path);
+  GetRequest(this._uri);
 
   void filter(String field, dynamic value) {
     _filters[field] = value is Iterable ? value.map((item) => item.toString()).join(',') : value;
@@ -144,6 +174,10 @@ class GetRequest {
     _sort[field] = descending;
   }
 
+  void limit(int limit) {
+    _limit = limit;
+  }
+
   Uri toUri() {
     final params = <String, dynamic>{
       for (final filter in _filters.entries) //
@@ -155,10 +189,12 @@ class GetRequest {
       for (final limit in _limits.entries) //
         'limit[${limit.key}]': limit.value.toString(),
       if (_sort.isNotEmpty) //
-        'sort': _sort.entries.map((entry) => '${entry.value ? '-' : ''}${entry.key}').join(',')
+        'sort': _sort.entries.map((entry) => '${entry.value ? '-' : ''}${entry.key}').join(','),
+      if (_limit != null) //
+        'limit': _limit.toString(),
     };
 
-    return Uri.parse(_apiUri + _path).replace(queryParameters: params);
+    return (_uri).replace(queryParameters: params);
   }
 }
 

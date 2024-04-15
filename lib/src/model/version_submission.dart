@@ -11,6 +11,6 @@ class VersionSubmission extends CallableModel {
         super(type, id, client);
 
   Future<void> delete() {
-    return client.delete('$type/$id');
+    return client.delete(AppStoreConnectUri.v1('$type/$id'));
   }
 }

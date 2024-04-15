@@ -1,6 +1,8 @@
 import 'package:appstore_connect/src/client.dart';
 import 'package:appstore_connect/src/model/build.dart';
+import 'package:appstore_connect/src/model/in_app_purchase.dart';
 import 'package:appstore_connect/src/model/phased_release.dart';
+import 'package:appstore_connect/src/model/territory.dart';
 import 'package:appstore_connect/src/model/version.dart';
 import 'package:appstore_connect/src/model/version_localization.dart';
 import 'package:appstore_connect/src/model/version_submission.dart';
@@ -32,6 +34,22 @@ abstract class Model {
       //  return ReleaseRequest(id);
       case Build.type:
         return Build(id, attributes);
+      case InAppPurchase.type:
+        return InAppPurchase(id, attributes, client);
+      case InAppPurchaseLocalization.type:
+        return InAppPurchaseLocalization(id, attributes);
+      case InAppPurchasePriceSchedule.type:
+        return InAppPurchasePriceSchedule(id);
+      case Territory.type:
+        return Territory(id, attributes);
+      case InAppPurchaseAppStoreReviewScreenshot.type:
+        return InAppPurchaseAppStoreReviewScreenshot(id, attributes, client);
+      case InAppPurchasePricePoint.type:
+        return InAppPurchasePricePoint(id, attributes);
+      case InAppPurchaseAvailability.type:
+        return InAppPurchaseAvailability(id, attributes);
+      case InAppPurchaseSubmission.type:
+        return InAppPurchaseSubmission(id);
       default:
         throw Exception('Type $type is not supported yet');
     }
@@ -48,24 +66,68 @@ abstract class ModelAttributes {
   Map<String, dynamic> toMap();
 }
 
-class ModelRelationship {
+abstract class ModelRelationship {
+  dynamic toJson();
+}
+
+class SingleModelRelationship extends ModelRelationship {
   final String type;
   final String id;
 
-  ModelRelationship({required this.type, required this.id});
+  SingleModelRelationship({required this.type, required this.id});
+
+  @override
+  toJson() {
+    return {'type': type, 'id': id};
+  }
+}
+
+class MultiModelRelationship extends ModelRelationship {
+  final List<SingleModelRelationship> relationships;
+
+  MultiModelRelationship(List<SingleModelRelationship> this.relationships);
+
+  @override
+  toJson() {
+    return this.relationships.map((e) => e.toJson()).toList();
+  }
+}
+
+class ModelInclude {
+  final String type;
+  final String id;
+  final Map<String, dynamic>? attributes;
+  final Map<String, ModelRelationship>? relationships;
+
+  ModelInclude({required this.type, required this.id, this.attributes, this.relationships});
 
   Map<String, dynamic> toMap() {
-    return {'type': type, 'id': id};
+    return {
+      'type': type,
+      'id': id,
+      if (attributes != null) //
+        'attributes': attributes,
+      if (relationships != null) //
+        'relationships': relationships!.map((key, value) => MapEntry(key, {'data': value.toJson()}))
+    };
   }
 }
 
 class ModelParser {
   static List<T> parseList<T extends Model>(AppStoreConnectClient client, Map<String, dynamic> envelope) {
     final includedModels = _parseIncludes(client, envelope);
-    final modelData = envelope['data'].cast<Map<String, dynamic>>();
-    final modelList = modelData.map((data) => _parseModel(client, data, includedModels)).toList();
 
-    return modelList.cast<T>();
+    final Iterable<Model> modelList;
+    final dataValue = envelope['data'];
+    if (dataValue is Map) {
+      modelList = dataValue.values.map((value) => _parseModel(client, value, includedModels));
+    } else if (dataValue is List) {
+      modelList = dataValue.map((value) => _parseModel(client, value, includedModels));
+    } else {
+      throw Error();
+    }
+
+    return modelList.toList().cast<T>();
   }
 
   static T parse<T extends Model>(AppStoreConnectClient client, Map<String, dynamic> envelope) {
@@ -77,6 +139,7 @@ class ModelParser {
   static Map<String, Map<String, Model>> _parseIncludes(AppStoreConnectClient client, Map<String, dynamic> envelope) {
     final includedModels = <String, Map<String, Model>>{};
     if (envelope.containsKey('included')) {
+      //TODO: included property is not always of type Map, see https://developer.apple.com/documentation/appstoreconnectapi/inapppurchasesubmissionresponse
       final includedData = envelope['included'].cast<Map<String, dynamic>>();
       for (final data in includedData) {
         final model = _parseModel(client, data, includedModels);

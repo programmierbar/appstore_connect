@@ -37,11 +37,12 @@ class PhasedRelease extends CallableModel {
   }
 
   Future<void> update(PhasedReleaseAttributes attributes) {
-    return client.patchModel(type: type, id: id, attributes: attributes);
+    final baseUri = AppStoreConnectUri.v1();
+    return client.patchModel(baseUri, type, id, attributes: attributes);
   }
 
   Future<void> delete() {
-    return client.delete('$type/$id');
+    return client.delete(AppStoreConnectUri.v1('$type/$id'));
   }
 }
 
