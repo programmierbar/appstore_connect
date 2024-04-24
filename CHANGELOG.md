@@ -1,3 +1,6 @@
+# 0.2.0
+* Support for basic in-app purchase operations 
+
 # 0.1.2
 * Add missing releaseType property to AppStoreVersion
 
