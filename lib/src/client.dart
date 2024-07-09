@@ -205,7 +205,9 @@ class ApiResponse {
   ApiResponse(this._client, this._response);
 
   int get status => _response.statusCode;
-  Map<String, dynamic> get json => jsonDecode(_response.body);
+  // workaround for https://github.com/dart-lang/http/issues/180
+  // when server sends invalid content-type header
+  Map<String, dynamic> get json => jsonDecode(utf8.decode(_response.bodyBytes));
 
   List<T> asList<T extends Model>() => ModelParser.parseList<T>(_client, json);
   T as<T extends Model>() => ModelParser.parse<T>(_client, json);
