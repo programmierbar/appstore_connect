@@ -16,7 +16,7 @@ class AppStoreConnectApi {
 
   Future<List<AppStoreVersion>> getVersions({
     Iterable<String>? versions,
-    Iterable<AppStoreState>? states,
+    Iterable<AppVersionState>? states,
     Iterable<AppStorePlatform>? platforms,
   }) async {
     final request = GetRequest(AppStoreConnectUri.v1('apps/$_appId/appStoreVersions'))
@@ -28,7 +28,7 @@ class AppStoreConnectApi {
       request.filter('versionString', versions);
     }
     if (states != null) {
-      request.filter('appStoreState', states);
+      request.filter('appVersionState', states);
     }
     if (platforms != null) {
       request.filter('platform', platforms);

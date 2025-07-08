@@ -10,7 +10,7 @@ final _earliestDateFormat = DateFormat("yyyy-MM-ddThh:'00Z'");
 
 class AppStoreVersion extends CallableModel {
   static const type = 'appStoreVersions';
-  static const fields = ['versionString', 'appStoreState', 'releaseType'];
+  static const fields = ['versionString', 'appVersionState', 'releaseType'];
 
   final AppStoreVersionAttributes _attributes;
   final Map<String, dynamic> _relations;
@@ -23,11 +23,11 @@ class AppStoreVersion extends CallableModel {
   )   : _attributes = AppStoreVersionAttributes._(attributes),
         super(type, id, client);
 
-  bool get live => AppStoreState.liveStates.contains(appStoreState);
-  bool get editable => AppStoreState.editStates.contains(appStoreState);
+  bool get live => AppVersionState.liveStates.contains(appVersionState);
+  bool get editable => AppVersionState.editStates.contains(appVersionState);
 
   String get versionString => _attributes.versionString;
-  AppStoreState get appStoreState => _attributes.appStoreState;
+  AppVersionState get appVersionState => _attributes.appVersionState;
   ReleaseType get releaseType => _attributes.releaseType;
 
   Build? get build => _relations['build'];
@@ -41,7 +41,7 @@ class AppStoreVersion extends CallableModel {
   }
 
   Future<void> update(AppStoreVersionAttributes attributes) async {
-    await client.patchModel(AppStoreConnectUri.v1(), 'appStoreVersions',id, attributes: attributes);
+    await client.patchModel(AppStoreConnectUri.v1(), 'appStoreVersions', id, attributes: attributes);
     _attributes.merge(attributes);
   }
 
@@ -93,7 +93,7 @@ class AppStoreVersionAttributes implements ModelAttributes {
 
   String get versionString => _attributes['versionString'];
   AppStorePlatform get platform => AppStorePlatform._(_attributes['platform']);
-  AppStoreState get appStoreState => AppStoreState._(_attributes['appStoreState']);
+  AppVersionState get appVersionState => AppVersionState._(_attributes['appVersionState']);
   ReleaseType get releaseType => ReleaseType._(_attributes['releaseType']);
   DateTime? get earliestReleaseDate => _attributes['earliest_release_date'] != null //
       ? DateTime.parse(_attributes['earliest_release_date'])
@@ -115,35 +115,40 @@ class AppStorePlatform {
   String toString() => _name;
 }
 
-class AppStoreState {
-  static const readyForSale = AppStoreState._('READY_FOR_SALE');
-  static const processingForAppStore = AppStoreState._('PROCESSING_FOR_APP_STORE');
-  static const pendingDeveloperRelease = AppStoreState._('PENDING_DEVELOPER_RELEASE');
-  static const pendingAppleRelease = AppStoreState._('PENDING_APPLE_RELEASE');
-  static const inReview = AppStoreState._('IN_REVIEW');
-  static const waitingForReview = AppStoreState._('WAITING_FOR_REVIEW');
-  static const developerRejected = AppStoreState._('DEVELOPER_REJECTED');
-  static const developerRemovedFromSale = AppStoreState._('DEVELOPER_REMOVED_FROM_SALE');
-  static const rejected = AppStoreState._('REJECTED');
-  static const prepareForSubmission = AppStoreState._('PREPARE_FOR_SUBMISSION');
-  static const metadataRejected = AppStoreState._('METADATA_REJECTED');
-  static const invalidBinary = AppStoreState._('INVALID_BINARY');
+class AppVersionState {
+  static const accepted = AppVersionState._('ACCEPTED');
+  static const developerRejected = AppVersionState._('DEVELOPER_REJECTED');
+  static const inReview = AppVersionState._('IN_REVIEW');
+  static const invalidBinary = AppVersionState._('INVALID_BINARY');
+  static const metadataRejected = AppVersionState._('METADATA_REJECTED');
+  static const pendingAppleRelease = AppVersionState._('PENDING_APPLE_RELEASE');
+  static const pendingDeveloperRelease = AppVersionState._('PENDING_DEVELOPER_RELEASE');
+  static const prepareForSubmission = AppVersionState._('PREPARE_FOR_SUBMISSION');
+  static const processingForDistribution = AppVersionState._('PROCESSING_FOR_DISTRIBUTION');
+  static const readyForDistribution = AppVersionState._('READY_FOR_DISTRIBUTION');
+  static const readyForReview = AppVersionState._('READY_FOR_REVIEW');
+  static const rejected = AppVersionState._('REJECTED');
+  static const replacedWithNewVersion = AppVersionState._('REPLACED_WITH_NEW_VERSION'); //todo: sort into group
+  static const waitingForExportCompliance = AppVersionState._('WAITING_FOR_EXPORT_COMPLIANCE');
+  static const waitingForReview = AppVersionState._('WAITING_FOR_REVIEW');
 
   static const liveStates = [
-    readyForSale,
+    readyForDistribution,
     pendingAppleRelease,
     pendingDeveloperRelease,
-    processingForAppStore,
+    processingForDistribution,
     inReview,
-    developerRemovedFromSale
   ];
   static const editStates = [
+    accepted,
+    readyForReview,
     prepareForSubmission,
     developerRejected,
     rejected,
     metadataRejected,
     waitingForReview,
-    invalidBinary
+    invalidBinary,
+    waitingForExportCompliance
   ];
   static const rejectableStates = [
     pendingAppleRelease,
@@ -153,10 +158,11 @@ class AppStoreState {
   ];
 
   final String _name;
-  const AppStoreState._(this._name);
+  const AppVersionState._(this._name);
 
   //int get hashCode => _name.hashCode;
-  bool operator ==(dynamic other) => other is AppStoreState && other._name == _name;
+  // ignore: non_nullable_equals_parameter
+  bool operator ==(dynamic other) => other is AppVersionState && other._name == _name;
   String toString() => _name;
 }
 
