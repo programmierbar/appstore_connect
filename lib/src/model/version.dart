@@ -175,6 +175,7 @@ class ReleaseType {
   const ReleaseType._(this._name);
 
   int get hashCode => _name.hashCode;
+  // ignore: non_nullable_equals_parameter
   bool operator ==(dynamic other) => other is ReleaseType && other._name == _name;
   String toString() => _name;
 }

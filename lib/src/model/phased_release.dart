@@ -56,6 +56,7 @@ class PhasedReleaseState {
   const PhasedReleaseState._(this._value);
 
   int get hashCode => _value.hashCode;
+  // ignore: non_nullable_equals_parameter
   bool operator ==(dynamic other) => other is PhasedReleaseState && other._value == _value;
   String toString() => _value;
 }
