@@ -7,7 +7,6 @@ final _earliestDateFormat = DateFormat("yyyy-MM-ddThh:'00Z'");
 
 class AppStoreVersion extends CallableModel {
   static const type = 'appStoreVersions';
-  static const fields = ['versionString', 'appVersionState', 'releaseType'];
 
   final AppStoreVersionAttributes _attributes;
   final Map<String, dynamic> _relations;
