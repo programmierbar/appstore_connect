@@ -6,7 +6,6 @@ import 'package:appstore_connect/src/model/review_submission.dart';
 import 'package:appstore_connect/src/model/territory.dart';
 import 'package:appstore_connect/src/model/version.dart';
 import 'package:appstore_connect/src/model/version_localization.dart';
-import 'package:appstore_connect/src/model/version_submission.dart';
 
 abstract class Model {
   final String _type;
@@ -28,8 +27,6 @@ abstract class Model {
         return VersionLocalization(id, client, attributes);
       case PhasedRelease.type:
         return PhasedRelease(id, client, attributes);
-      case VersionSubmission.type:
-        return VersionSubmission(id, client, attributes);
       case ReviewSubmission.type:
         return ReviewSubmission(id, client, attributes, relations);
       case ReviewSubmissionItem.type:
