@@ -31,9 +31,6 @@ abstract class Model {
         return ReviewSubmission(id, client, attributes, relations);
       case ReviewSubmissionItem.type:
         return ReviewSubmissionItem(id, client, attributes, relations);
-      //not yet supported by the App Store Connect API
-      //case ReleaseRequest.type:
-      //  return ReleaseRequest(id);
       case Build.type:
         return Build(id, attributes);
       case InAppPurchase.type:
