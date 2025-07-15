@@ -39,7 +39,7 @@ class ReviewSubmission extends CallableModel {
   Future<ReviewSubmissionItem> postItem({AppStoreVersion? appStoreVersion}) {
     return client.postModel(
       AppStoreConnectUri.v1(),
-      'reviewSubmissionItems',
+      ReviewSubmissionItem.type,
       relationships: {
         if (appStoreVersion != null)
           'appStoreVersion': SingleModelRelationship(type: AppStoreVersion.type, id: appStoreVersion.id),
