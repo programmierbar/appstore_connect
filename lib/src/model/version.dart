@@ -60,10 +60,10 @@ class AppStoreVersion extends CallableModel {
     );
   }
 
-  Future<VersionSubmission> addSubmission() async {
-    return _relations['appStoreVersionSubmission'] = await client.postModel<VersionSubmission>(
+  Future<void> requestRelease() async {
+    await client.postModel(
       AppStoreConnectUri.v1(),
-      VersionSubmission.type,
+      'appStoreVersionReleaseRequests',
       relationships: {'appStoreVersion': SingleModelRelationship(type: AppStoreVersion.type, id: id)},
     );
   }
@@ -172,9 +172,3 @@ extension DateTimeExtension on DateTime {
     return toIso8601String().replaceFirst(RegExp(r'\.\d+'), '');
   }
 }
-
-// no yet supported by App Store connect api
-/*class ReleaseRequest extends Model {
-  static const type = 'appStoreVersionReleaseRequests';
-  ReleaseRequest(String id) : super(type, id);
-}*/
