@@ -142,13 +142,12 @@ class AppVersionState {
     waitingForExportCompliance,
   ];
 
-  final String _name;
-  const AppVersionState._(this._name);
+  final String _value;
+  const AppVersionState._(this._value);
 
-  //int get hashCode => _name.hashCode;
-  // ignore: non_nullable_equals_parameter
-  bool operator ==(dynamic other) => other is AppVersionState && other._name == _name;
-  String toString() => _name;
+  int get hashCode => _value.hashCode;
+  bool operator ==(Object other) => other is AppVersionState && other._value == _value;
+  String toString() => _value;
 }
 
 class ReleaseType {
@@ -160,8 +159,7 @@ class ReleaseType {
   const ReleaseType._(this._name);
 
   int get hashCode => _name.hashCode;
-  // ignore: non_nullable_equals_parameter
-  bool operator ==(dynamic other) => other is ReleaseType && other._name == _name;
+  bool operator ==(Object other) => other is ReleaseType && other._name == _name;
   String toString() => _name;
 }
 

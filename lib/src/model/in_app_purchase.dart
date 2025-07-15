@@ -135,9 +135,6 @@ class InAppPurchaseAttributes implements ModelAttributes {
           if (familySharable != null) 'familySharable': familySharable,
         };
 
-  // ignore: unused_element
-  InAppPurchaseAttributes._(this._attributes);
-
   String get name => _attributes['name'];
   String get productId => _attributes['productId'];
   InAppPurchaseType get inAppPurchaseType => InAppPurchaseType._(_attributes['inAppPurchaseType']);
@@ -167,8 +164,7 @@ class InAppPurchaseState {
   const InAppPurchaseState._(this._value);
 
   int get hashCode => _value.hashCode;
-  // ignore: non_nullable_equals_parameter
-  bool operator ==(dynamic other) => other is InAppPurchaseState && other._value == _value;
+  bool operator ==(Object other) => other is InAppPurchaseState && other._value == _value;
   String toString() => _value;
 }
 
@@ -181,8 +177,7 @@ class InAppPurchaseType {
   const InAppPurchaseType._(this._value);
 
   int get hashCode => _value.hashCode;
-  // ignore: non_nullable_equals_parameter
-  bool operator ==(dynamic other) => other is InAppPurchaseType && other._value == _value;
+  bool operator ==(Object other) => other is InAppPurchaseType && other._value == _value;
   String toString() => _value;
 }
 
@@ -234,8 +229,7 @@ class InAppPurchaseLocalizationState {
   const InAppPurchaseLocalizationState._(this._value);
 
   int get hashCode => _value.hashCode;
-  // ignore: non_nullable_equals_parameter
-  bool operator ==(dynamic other) => other is InAppPurchaseLocalizationState && other._value == _value;
+  bool operator ==(Object other) => other is InAppPurchaseLocalizationState && other._value == _value;
   String toString() => _value;
 }
 
@@ -349,9 +343,6 @@ class InAppPurchaseAppStoreReviewScreenshotCommitAttributes implements ModelAttr
           'uploaded': uploaded,
           'sourceFileChecksum': sourceFileChecksum,
         };
-
-  // ignore: unused_element
-  InAppPurchaseAppStoreReviewScreenshotCommitAttributes._(this._attributes);
 
   bool get uploaded => _attributes['uploaded'] as bool;
   String get sourceFileChecksum => _attributes['sourceFileChecksum'];

@@ -62,8 +62,7 @@ class ReviewSubmissionState {
   const ReviewSubmissionState._(this._value);
 
   int get hashCode => _value.hashCode;
-  // ignore: non_nullable_equals_parameter
-  bool operator ==(dynamic other) => other is ReviewSubmissionState && other._value == _value;
+  bool operator ==(Object other) => other is ReviewSubmissionState && other._value == _value;
   String toString() => _value;
 }
 
@@ -135,7 +134,6 @@ class ReviewSubmissionItemState {
   const ReviewSubmissionItemState._(this._value);
 
   int get hashCode => _value.hashCode;
-  // ignore: non_nullable_equals_parameter
-  bool operator ==(dynamic other) => other is ReviewSubmissionState && other._value == _value;
+  bool operator ==(Object other) => other is ReviewSubmissionState && other._value == _value;
   String toString() => _value;
 }
