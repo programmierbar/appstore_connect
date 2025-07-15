@@ -112,7 +112,7 @@ class AppVersionState {
   static const readyForDistribution = AppVersionState._('READY_FOR_DISTRIBUTION');
   static const readyForReview = AppVersionState._('READY_FOR_REVIEW');
   static const rejected = AppVersionState._('REJECTED');
-  static const replacedWithNewVersion = AppVersionState._('REPLACED_WITH_NEW_VERSION'); //todo: sort into group
+  static const replacedWithNewVersion = AppVersionState._('REPLACED_WITH_NEW_VERSION');
   static const waitingForExportCompliance = AppVersionState._('WAITING_FOR_EXPORT_COMPLIANCE');
   static const waitingForReview = AppVersionState._('WAITING_FOR_REVIEW');
 
@@ -122,6 +122,7 @@ class AppVersionState {
     pendingDeveloperRelease,
     processingForDistribution,
     inReview,
+    replacedWithNewVersion,
   ];
   static const editStates = [
     accepted,
