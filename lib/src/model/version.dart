@@ -1,10 +1,6 @@
-import 'package:appstore_connect/src/client.dart';
-import 'package:appstore_connect/src/model/build.dart';
+import 'package:appstore_connect/appstore_connect.dart';
 import 'package:appstore_connect/src/model/app_store_platform.dart';
 import 'package:appstore_connect/src/model/model.dart';
-import 'package:appstore_connect/src/model/phased_release.dart';
-import 'package:appstore_connect/src/model/version_localization.dart';
-import 'package:appstore_connect/src/model/version_submission.dart';
 import 'package:intl/intl.dart';
 
 final _earliestDateFormat = DateFormat("yyyy-MM-ddThh:'00Z'");
@@ -26,6 +22,7 @@ class AppStoreVersion extends CallableModel {
 
   bool get live => AppVersionState.liveStates.contains(appVersionState);
   bool get editable => AppVersionState.editStates.contains(appVersionState);
+  bool get rejectable => AppVersionState.rejectableStates.contains(appVersionState);
 
   String get versionString => _attributes.versionString;
   AppVersionState get appVersionState => _attributes.appVersionState;
@@ -33,7 +30,6 @@ class AppStoreVersion extends CallableModel {
 
   Build? get build => _relations['build'];
   PhasedRelease? get phasedRelease => _relations['appStoreVersionPhasedRelease'];
-  VersionSubmission? get submission => _relations['appStoreVersionSubmission'];
 
   Future<List<VersionLocalization>> getLocalizations() async {
     final request = GetRequest(AppStoreConnectUri.v1('appStoreVersions/$id/appStoreVersionLocalizations'));
@@ -145,6 +141,7 @@ class AppVersionState {
     pendingDeveloperRelease,
     inReview,
     waitingForReview,
+    waitingForExportCompliance,
   ];
 
   final String _name;

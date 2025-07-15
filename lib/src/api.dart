@@ -1,9 +1,6 @@
-import 'package:appstore_connect/src/client.dart';
-import 'package:appstore_connect/src/model/build.dart';
-import 'package:appstore_connect/src/model/in_app_purchase.dart';
+import 'package:appstore_connect/appstore_connect.dart';
+import 'package:appstore_connect/src/model/app_store_platform.dart';
 import 'package:appstore_connect/src/model/model.dart';
-import 'package:appstore_connect/src/model/territory.dart';
-import 'package:appstore_connect/src/model/version.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 class AppStoreConnectApi {
@@ -21,7 +18,6 @@ class AppStoreConnectApi {
   }) async {
     final request = GetRequest(AppStoreConnectUri.v1('apps/$_appId/appStoreVersions'))
       ..include('appStoreVersionPhasedRelease')
-      ..include('appStoreVersionSubmission')
       ..include('build');
 
     if (versions != null) {
@@ -102,5 +98,22 @@ class AppStoreConnectApi {
   Future<List<Territory>> getTerritories() async {
     final response = await _client.get(GetRequest(AppStoreConnectUri.v1('territories'))..limit(200));
     return response.asList<Territory>();
+  }
+
+  Future<ReviewSubmission> postReviewSubmission(AppStorePlatform platform) async {
+    return await _client.postModel<ReviewSubmission>(
+      AppStoreConnectUri.v1(),
+      ReviewSubmission.type,
+      attributes: ReviewSubmissionCreateAttributes(platform: platform),
+      relationships: {'app': SingleModelRelationship(type: 'apps', id: _appId)},
+    );
+  }
+
+  Future<List<ReviewSubmission>> getReviewSubmission() async {
+    final request = GetRequest(AppStoreConnectUri.v1('reviewSubmissions'))
+      ..include('appStoreVersionForReview')
+      ..filter('app', _appId);
+    final response = await _client.get(request);
+    return response.asList();
   }
 }
