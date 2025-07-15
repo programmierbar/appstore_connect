@@ -47,11 +47,6 @@ class ReviewSubmission extends CallableModel {
       },
     );
   }
-
-  @override
-  String toString() {
-    return 'ReviewSubmission{state: $state, platform: $platform, submittedDate: $submittedDate, appStoreVersionForReview: $appStoreVersionForReview}';
-  }
 }
 
 class ReviewSubmissionState {
@@ -126,11 +121,6 @@ class ReviewSubmissionItem extends CallableModel {
 
   Future<void> delete() async {
     await client.delete(AppStoreConnectUri.v1('$type/$id'));
-  }
-
-  @override
-  String toString() {
-    return 'ReviewSubmissionItem{id: $id, state: $state, _relations: $_relations}';
   }
 }
 
