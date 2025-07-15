@@ -1,5 +1,6 @@
 import 'package:appstore_connect/src/client.dart';
 import 'package:appstore_connect/src/model/build.dart';
+import 'package:appstore_connect/src/model/app_store_platform.dart';
 import 'package:appstore_connect/src/model/model.dart';
 import 'package:appstore_connect/src/model/phased_release.dart';
 import 'package:appstore_connect/src/model/version_localization.dart';
@@ -92,7 +93,7 @@ class AppStoreVersionAttributes implements ModelAttributes {
   AppStoreVersionAttributes._(this._attributes);
 
   String get versionString => _attributes['versionString'];
-  AppStorePlatform get platform => AppStorePlatform._(_attributes['platform']);
+  AppStorePlatform get platform => AppStorePlatform(_attributes['platform']);
   AppVersionState get appVersionState => AppVersionState._(_attributes['appVersionState']);
   ReleaseType get releaseType => ReleaseType._(_attributes['releaseType']);
   DateTime? get earliestReleaseDate => _attributes['earliest_release_date'] != null //
@@ -102,17 +103,6 @@ class AppStoreVersionAttributes implements ModelAttributes {
   void merge(AppStoreVersionAttributes attributes) => _attributes.addAll(attributes._attributes);
 
   Map<String, dynamic> toMap() => _attributes;
-}
-
-class AppStorePlatform {
-  static const iOS = AppStorePlatform._('IOS');
-  static const MacOS = AppStorePlatform._('MacOS');
-  static const TvOS = AppStorePlatform._('TV_OS');
-
-  final String _name;
-  const AppStorePlatform._(this._name);
-
-  String toString() => _name;
 }
 
 class AppVersionState {
