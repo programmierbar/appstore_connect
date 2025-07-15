@@ -1,6 +1,6 @@
 import 'package:appstore_connect/appstore_connect.dart';
-import 'package:appstore_connect/src/model/app_store_platform.dart';
 import 'package:appstore_connect/src/model/model.dart';
+import 'package:appstore_connect/src/model/territory.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 class AppStoreConnectApi {
