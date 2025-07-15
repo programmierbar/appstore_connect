@@ -2,10 +2,10 @@ import 'package:appstore_connect/src/client.dart';
 import 'package:appstore_connect/src/model/build.dart';
 import 'package:appstore_connect/src/model/in_app_purchase.dart';
 import 'package:appstore_connect/src/model/phased_release.dart';
+import 'package:appstore_connect/src/model/review_submission.dart';
 import 'package:appstore_connect/src/model/territory.dart';
 import 'package:appstore_connect/src/model/version.dart';
 import 'package:appstore_connect/src/model/version_localization.dart';
-import 'package:appstore_connect/src/model/version_submission.dart';
 
 abstract class Model {
   final String _type;
@@ -27,11 +27,10 @@ abstract class Model {
         return VersionLocalization(id, client, attributes);
       case PhasedRelease.type:
         return PhasedRelease(id, client, attributes);
-      case VersionSubmission.type:
-        return VersionSubmission(id, client, attributes);
-      //not yet supported by the App Store Connect API
-      //case ReleaseRequest.type:
-      //  return ReleaseRequest(id);
+      case ReviewSubmission.type:
+        return ReviewSubmission(id, client, attributes, relations);
+      case ReviewSubmissionItem.type:
+        return ReviewSubmissionItem(id, client, attributes, relations);
       case Build.type:
         return Build(id, attributes);
       case InAppPurchase.type:

@@ -1,16 +1,11 @@
-import 'package:appstore_connect/src/client.dart';
-import 'package:appstore_connect/src/model/build.dart';
+import 'package:appstore_connect/appstore_connect.dart';
 import 'package:appstore_connect/src/model/model.dart';
-import 'package:appstore_connect/src/model/phased_release.dart';
-import 'package:appstore_connect/src/model/version_localization.dart';
-import 'package:appstore_connect/src/model/version_submission.dart';
 import 'package:intl/intl.dart';
 
 final _earliestDateFormat = DateFormat("yyyy-MM-ddThh:'00Z'");
 
 class AppStoreVersion extends CallableModel {
   static const type = 'appStoreVersions';
-  static const fields = ['versionString', 'appStoreState', 'releaseType'];
 
   final AppStoreVersionAttributes _attributes;
   final Map<String, dynamic> _relations;
@@ -23,16 +18,16 @@ class AppStoreVersion extends CallableModel {
   )   : _attributes = AppStoreVersionAttributes._(attributes),
         super(type, id, client);
 
-  bool get live => AppStoreState.liveStates.contains(appStoreState);
-  bool get editable => AppStoreState.editStates.contains(appStoreState);
+  bool get live => AppVersionState.liveStates.contains(appVersionState);
+  bool get editable => AppVersionState.editStates.contains(appVersionState);
+  bool get rejectable => AppVersionState.rejectableStates.contains(appVersionState);
 
   String get versionString => _attributes.versionString;
-  AppStoreState get appStoreState => _attributes.appStoreState;
+  AppVersionState get appVersionState => _attributes.appVersionState;
   ReleaseType get releaseType => _attributes.releaseType;
 
   Build? get build => _relations['build'];
   PhasedRelease? get phasedRelease => _relations['appStoreVersionPhasedRelease'];
-  VersionSubmission? get submission => _relations['appStoreVersionSubmission'];
 
   Future<List<VersionLocalization>> getLocalizations() async {
     final request = GetRequest(AppStoreConnectUri.v1('appStoreVersions/$id/appStoreVersionLocalizations'));
@@ -41,7 +36,7 @@ class AppStoreVersion extends CallableModel {
   }
 
   Future<void> update(AppStoreVersionAttributes attributes) async {
-    await client.patchModel(AppStoreConnectUri.v1(), 'appStoreVersions',id, attributes: attributes);
+    await client.patchModel(AppStoreConnectUri.v1(), 'appStoreVersions', id, attributes: attributes);
     _attributes.merge(attributes);
   }
 
@@ -64,10 +59,10 @@ class AppStoreVersion extends CallableModel {
     );
   }
 
-  Future<VersionSubmission> addSubmission() async {
-    return _relations['appStoreVersionSubmission'] = await client.postModel<VersionSubmission>(
+  Future<void> requestRelease() async {
+    await client.postModel(
       AppStoreConnectUri.v1(),
-      VersionSubmission.type,
+      'appStoreVersionReleaseRequests',
       relationships: {'appStoreVersion': SingleModelRelationship(type: AppStoreVersion.type, id: id)},
     );
   }
@@ -92,8 +87,8 @@ class AppStoreVersionAttributes implements ModelAttributes {
   AppStoreVersionAttributes._(this._attributes);
 
   String get versionString => _attributes['versionString'];
-  AppStorePlatform get platform => AppStorePlatform._(_attributes['platform']);
-  AppStoreState get appStoreState => AppStoreState._(_attributes['appStoreState']);
+  AppStorePlatform get platform => AppStorePlatform(_attributes['platform']);
+  AppVersionState get appVersionState => AppVersionState._(_attributes['appVersionState']);
   ReleaseType get releaseType => ReleaseType._(_attributes['releaseType']);
   DateTime? get earliestReleaseDate => _attributes['earliest_release_date'] != null //
       ? DateTime.parse(_attributes['earliest_release_date'])
@@ -104,60 +99,56 @@ class AppStoreVersionAttributes implements ModelAttributes {
   Map<String, dynamic> toMap() => _attributes;
 }
 
-class AppStorePlatform {
-  static const iOS = AppStorePlatform._('IOS');
-  static const MacOS = AppStorePlatform._('MacOS');
-  static const TvOS = AppStorePlatform._('TV_OS');
-
-  final String _name;
-  const AppStorePlatform._(this._name);
-
-  String toString() => _name;
-}
-
-class AppStoreState {
-  static const readyForSale = AppStoreState._('READY_FOR_SALE');
-  static const processingForAppStore = AppStoreState._('PROCESSING_FOR_APP_STORE');
-  static const pendingDeveloperRelease = AppStoreState._('PENDING_DEVELOPER_RELEASE');
-  static const pendingAppleRelease = AppStoreState._('PENDING_APPLE_RELEASE');
-  static const inReview = AppStoreState._('IN_REVIEW');
-  static const waitingForReview = AppStoreState._('WAITING_FOR_REVIEW');
-  static const developerRejected = AppStoreState._('DEVELOPER_REJECTED');
-  static const developerRemovedFromSale = AppStoreState._('DEVELOPER_REMOVED_FROM_SALE');
-  static const rejected = AppStoreState._('REJECTED');
-  static const prepareForSubmission = AppStoreState._('PREPARE_FOR_SUBMISSION');
-  static const metadataRejected = AppStoreState._('METADATA_REJECTED');
-  static const invalidBinary = AppStoreState._('INVALID_BINARY');
+class AppVersionState {
+  static const accepted = AppVersionState._('ACCEPTED');
+  static const developerRejected = AppVersionState._('DEVELOPER_REJECTED');
+  static const inReview = AppVersionState._('IN_REVIEW');
+  static const invalidBinary = AppVersionState._('INVALID_BINARY');
+  static const metadataRejected = AppVersionState._('METADATA_REJECTED');
+  static const pendingAppleRelease = AppVersionState._('PENDING_APPLE_RELEASE');
+  static const pendingDeveloperRelease = AppVersionState._('PENDING_DEVELOPER_RELEASE');
+  static const prepareForSubmission = AppVersionState._('PREPARE_FOR_SUBMISSION');
+  static const processingForDistribution = AppVersionState._('PROCESSING_FOR_DISTRIBUTION');
+  static const readyForDistribution = AppVersionState._('READY_FOR_DISTRIBUTION');
+  static const readyForReview = AppVersionState._('READY_FOR_REVIEW');
+  static const rejected = AppVersionState._('REJECTED');
+  static const replacedWithNewVersion = AppVersionState._('REPLACED_WITH_NEW_VERSION');
+  static const waitingForExportCompliance = AppVersionState._('WAITING_FOR_EXPORT_COMPLIANCE');
+  static const waitingForReview = AppVersionState._('WAITING_FOR_REVIEW');
 
   static const liveStates = [
-    readyForSale,
+    readyForDistribution,
     pendingAppleRelease,
     pendingDeveloperRelease,
-    processingForAppStore,
+    processingForDistribution,
     inReview,
-    developerRemovedFromSale
+    replacedWithNewVersion,
   ];
   static const editStates = [
+    accepted,
+    readyForReview,
     prepareForSubmission,
     developerRejected,
     rejected,
     metadataRejected,
     waitingForReview,
-    invalidBinary
+    invalidBinary,
+    waitingForExportCompliance
   ];
   static const rejectableStates = [
     pendingAppleRelease,
     pendingDeveloperRelease,
     inReview,
     waitingForReview,
+    waitingForExportCompliance,
   ];
 
-  final String _name;
-  const AppStoreState._(this._name);
+  final String _value;
+  const AppVersionState._(this._value);
 
-  //int get hashCode => _name.hashCode;
-  bool operator ==(dynamic other) => other is AppStoreState && other._name == _name;
-  String toString() => _name;
+  int get hashCode => _value.hashCode;
+  bool operator ==(Object other) => other is AppVersionState && other._value == _value;
+  String toString() => _value;
 }
 
 class ReleaseType {
@@ -169,7 +160,7 @@ class ReleaseType {
   const ReleaseType._(this._name);
 
   int get hashCode => _name.hashCode;
-  bool operator ==(dynamic other) => other is ReleaseType && other._name == _name;
+  bool operator ==(Object other) => other is ReleaseType && other._name == _name;
   String toString() => _name;
 }
 
@@ -179,9 +170,3 @@ extension DateTimeExtension on DateTime {
     return toIso8601String().replaceFirst(RegExp(r'\.\d+'), '');
   }
 }
-
-// no yet supported by App Store connect api
-/*class ReleaseRequest extends Model {
-  static const type = 'appStoreVersionReleaseRequests';
-  ReleaseRequest(String id) : super(type, id);
-}*/
