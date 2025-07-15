@@ -1,3 +1,6 @@
+# 0.3.0
+* Add support for reviewSubmissions
+
 # 0.2.1
 * Fix content-type parsing error, see https://github.com/dart-lang/http/issues/180
 
