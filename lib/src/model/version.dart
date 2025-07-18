@@ -62,7 +62,7 @@ class AppStoreVersion extends CallableModel {
   Future<void> requestRelease() async {
     await client.postModel(
       AppStoreConnectUri.v1(),
-      'appStoreVersionReleaseRequests',
+      AppStoreVersionReleaseRequest.type,
       relationships: {'appStoreVersion': SingleModelRelationship(type: AppStoreVersion.type, id: id)},
     );
   }
@@ -162,6 +162,12 @@ class ReleaseType {
   int get hashCode => _name.hashCode;
   bool operator ==(Object other) => other is ReleaseType && other._name == _name;
   String toString() => _name;
+}
+
+class AppStoreVersionReleaseRequest extends Model {
+  static const type = 'appStoreVersionReleaseRequests';
+
+  AppStoreVersionReleaseRequest(String id) : super(type, id);
 }
 
 extension DateTimeExtension on DateTime {

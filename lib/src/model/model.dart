@@ -49,6 +49,8 @@ abstract class Model {
         return InAppPurchaseAvailability(id, attributes);
       case InAppPurchaseSubmission.type:
         return InAppPurchaseSubmission(id);
+      case AppStoreVersionReleaseRequest.type:
+        return AppStoreVersionReleaseRequest(id);
       default:
         throw Exception('Type $type is not supported yet');
     }
