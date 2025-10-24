@@ -1,6 +1,7 @@
 # 0.3.2
 * Update dart_jsonwebtoken to ^3.3.1 and intl to ^0.20.2
 * Fix JWT token generation to use UTC times for RFC compliance
+* Export Territory model from main library
 
 # 0.3.1
 * Support AppStoreVersionReleaseRequest
