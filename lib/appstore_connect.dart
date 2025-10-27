@@ -6,6 +6,7 @@ export 'src/model/build.dart';
 export 'src/model/in_app_purchase.dart';
 export 'src/model/phased_release.dart';
 export 'src/model/review_submission.dart';
+export 'src/model/territory.dart';
 export 'src/model/version.dart';
 export 'src/model/version_localization.dart';
 export 'src/model/app_store_platform.dart';

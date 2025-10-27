@@ -31,14 +31,14 @@ class AppStoreConnectToken {
     refresh();
   }
 
-  bool get expired => _expiration!.isBefore(DateTime.now());
+  bool get expired => _expiration!.isBefore(DateTime.now().toUtc());
   String get value {
     if (expired) refresh();
     return _value!;
   }
 
   void refresh() {
-    _expiration = DateTime.now().add(duration);
+    _expiration = DateTime.now().toUtc().add(duration);
     final token = JsonWebToken({
       'iss': issuerId,
       'exp': secondsSinceEpoch(_expiration!),
